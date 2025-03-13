@@ -1,7 +1,9 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { LoginPage, RegisterPage } from './pages/auth';
 import DashboardPage from './pages/dashboard/DashboardPage';
+import { AttendancePage } from './pages/attendance';
 import ProtectedRoute from './components/auth/Protectedroute';
+import { Layout } from './components/layout';
 import './App.css';
 
 function App() {
@@ -15,7 +17,16 @@ function App() {
         {/* 認証が必要なルート */}
         <Route path="/dashboard" element={
           <ProtectedRoute>
-            <DashboardPage />
+            <Layout>
+              <DashboardPage />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        <Route path="/attendance" element={
+          <ProtectedRoute>
+            <Layout>
+              <AttendancePage />
+            </Layout>
           </ProtectedRoute>
         } />
         
