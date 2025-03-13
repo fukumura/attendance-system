@@ -33,7 +33,7 @@
     "@typescript-eslint/parser": "^5.x",
     "eslint": "^8.x",
     "jest": "^29.x",
-    "nodemon": "^2.x",
+    "nodemon": "^2.0.22",
     "prettier": "^2.x",
     "prisma": "^4.x",
     "ts-jest": "^29.x",

@@ -1,7 +1,9 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { LoginPage, RegisterPage } from './pages/auth';
-import DashboardPage from './pages/dashboard/DashboardPage';
+import { DashboardPage } from './pages/dashboard';
 import { AttendancePage } from './pages/attendance';
+import { LeavePage } from './pages/leave';
+import { ReportPage } from './pages/report';
 import ProtectedRoute from './components/auth/Protectedroute';
 import { Layout } from './components/layout';
 import './App.css';
@@ -26,6 +28,20 @@ function App() {
           <ProtectedRoute>
             <Layout>
               <AttendancePage />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        <Route path="/leave" element={
+          <ProtectedRoute>
+            <Layout>
+              <LeavePage />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        <Route path="/reports" element={
+          <ProtectedRoute>
+            <Layout>
+              <ReportPage />
             </Layout>
           </ProtectedRoute>
         } />
