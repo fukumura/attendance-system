@@ -4,11 +4,10 @@ import { PrismaClient } from '@prisma/client';
 import dotenv from 'dotenv';
 
 // Import routes
-// These will be implemented later
-// import authRoutes from './routes/authRoutes';
-// import attendanceRoutes from './routes/attendanceRoutes';
-// import leaveRoutes from './routes/leaveRoutes';
-// import reportRoutes from './routes/reportRoutes';
+import authRoutes from './routes/authRoutes';
+import attendanceRoutes from './routes/attendanceRoutes';
+import leaveRoutes from './routes/leaveRoutes';
+import reportRoutes from './routes/reportRoutes';
 
 // Load environment variables
 dotenv.config();
@@ -41,10 +40,10 @@ app.get('/health', (_req: Request, res: Response) => {
 });
 
 // API routes
-// app.use('/api/auth', authRoutes);
-// app.use('/api/attendance', attendanceRoutes);
-// app.use('/api/leave', leaveRoutes);
-// app.use('/api/reports', reportRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/attendance', attendanceRoutes);
+app.use('/api/leave', leaveRoutes);
+app.use('/api/reports', reportRoutes);
 
 // 404 handler
 app.use((_req: Request, res: Response) => {
