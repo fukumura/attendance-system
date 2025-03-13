@@ -54,6 +54,25 @@ jest.config.js
 # Storybook
 storybook-static/
 
+# Vite
+# Vite関連
+frontend/.vite/
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+
+# 環境変数ファイル
+frontend/.env
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+
+# キャッシュファイル
+frontend/.npm
+frontend/.eslintcache
+frontend/.yarn-cache
+
 # Yarn
 .yarn/*
 !.yarn/releases
