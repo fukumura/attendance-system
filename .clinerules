@@ -1,0 +1,58 @@
+# clinerules.md - Claude AI自動記録ガイドライン
+
+## 目的
+- このファイルはClineとの会話内で重要情報を効率的に保存・管理するためのルールを定義します
+- 開発者が一貫した方法でAIとの会話履歴を整理し、重要な決定事項を追跡できるようにします
+
+## 記録対象（✅ 記録する）
+- **決定事項**: `#DECISION` タグで重要な決定を記録（例: `#DECISION アカウント機能はOAuth2のみサポート`）
+- **重要情報**: `#INFO` タグで後から参照したい情報を記録（例: `#INFO データベース接続情報更新: 2025-02-15`）
+- **TODO項目**: `#TODO` タグでフォローアップが必要な項目（例: `#TODO 3/20までに認証機能テスト完了`）
+- 繰り返し参照が予測される重要な情報は、可能な限り英語で短くまとめる
+
+## 記録フォーマット
+```
+#[タグ] [日付] [要約（50文字以内）]
+- [詳細情報（必要な場合のみ、3行以内）]
+- [担当者/関連者]
+- [参照リンク（必要な場合のみ）]
+```
+
+## 記録しない情報（トークン節約）
+- 一時的なエラーや既に解決済みの問題
+- 詳細なコーディング規約やプロジェクトルール（必要時はGitHubリポジトリのドキュメントを参照）
+- 長い会話ログそのもの（必要な場合は外部ツールにリンクを保存）
+- 一時的な質問や短期的な話題
+- デバッグ過程やトラブルシューティングの詳細（結果のみ記録）
+
+## メモリーの整理
+- 1か月以上参照されない情報は自動的に削除対象とする
+- 削除前に `#ARCHIVE` タグを付けて1週間保持し、必要ならば明示的に保存
+- 重要度が非常に高い情報には `#PERMANENT` タグを付けて自動削除から除外
+
+## 検索と参照
+- 記録はタグ、日付、キーワードで検索可能
+- 関連する記録には相互参照リンクを付ける（例: `関連: #DECISION 20250212-1`）
+
+## 参照するプロジェクトドキュメント
+- コーディング規約: [https://github.com/fukumura/attendance-system/blob/main/docs/coding-rules.md](https://github.com/fukumura/attendance-system/blob/main/docs/coding-rules.md)
+- API仕様書: [https://github.com/fukumura/attendance-system/blob/main/docs/api-spec.md](https://github.com/fukumura/attendance-system/blob/main/docs/api-spec.md)
+- データベース設計: [https://github.com/fukumura/attendance-system/blob/main/docs/database.md](https://github.com/fukumura/attendance-system/blob/main/docs/database.md)
+
+## 利用例
+
+```
+#DECISION 2025-03-10 バックエンドフレームワークはExpress.jsに決定
+- TypeScriptとの相性とチームの経験を考慮
+- 担当: 開発チーム全員
+- 関連: #INFO 2025-03-05 フレームワーク比較
+
+#INFO 2025-03-14 開発環境セットアップ手順更新
+- M1 Macのセットアップ手順を追加
+- Node.js v18.x以上が必要
+- https://github.com/fukumura/attendance-system/wiki/setup
+
+#TODO 2025-03-20 認証機能のテスト作成
+- JWTトークン検証とセッション管理のユニットテスト
+- 担当: @fukumura
+```
