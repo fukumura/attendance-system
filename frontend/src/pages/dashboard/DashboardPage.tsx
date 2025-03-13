@@ -1,72 +1,129 @@
 // frontend/src/pages/dashboard/DashboardPage.tsx
 import { useEffect, useState } from 'react';
-import { useAuth } from '../../hooks/useAuth';
 import { useAuthStore } from '../../store/authStore';
-import { useTaskStore } from '../../store/taskStore';
-import TaskList from '../../components/tasks/TaskList';
-import AddTaskButton from '../../components/tasks/AddTaskButton';
-import TaskFormModal from '../../components/tasks/TaskFormModal';
+import { useAttendanceStore } from '../../store/attendanceStore';
+import { useLeaveStore } from '../../store/leaveStore';
+import { AttendanceStatusCard } from '../../components/attendance';
+import { AttendanceClockModal } from '../../components/attendance';
 
 const DashboardPage = () => {
   const { user } = useAuthStore();
-  const { handleLogout, fetchCurrentUser } = useAuth();
-  const { fetchTasks } = useTaskStore();
-  const [showAddTask, setShowAddTask] = useState(false);
+  const { todayStatus, fetchTodayStatus } = useAttendanceStore();
+  const { requests, fetchRequests } = useLeaveStore();
+  const [showClockInModal, setShowClockInModal] = useState(false);
+  const [showClockOutModal, setShowClockOutModal] = useState(false);
+  const [pendingLeaves, setPendingLeaves] = useState<number>(0);
+  const [approvedLeaves, setApprovedLeaves] = useState<number>(0);
 
-  // コンポーネントマウント時にユーザー情報とタスクを取得
+  // コンポーネントマウント時に勤怠状態と休暇申請を取得
   useEffect(() => {
-    fetchCurrentUser();
-    fetchTasks();
-  }, []); // 依存配列を空にして初回レンダリング時のみ実行
+    fetchTodayStatus();
+    
+    // 休暇申請を取得
+    fetchRequests().then(() => {
+      // 申請中と承認済みの休暇数をカウント
+      const pending = requests.filter(req => req.status === 'PENDING').length;
+      const approved = requests.filter(req => req.status === 'APPROVED').length;
+      setPendingLeaves(pending);
+      setApprovedLeaves(approved);
+    });
+  }, [fetchTodayStatus, fetchRequests]);
 
-  const handleTaskSaved = () => {
-    // タスクが保存されたらタスク一覧を更新
-    fetchTasks();
+  const handleClockIn = () => {
+    setShowClockInModal(true);
+  };
+
+  const handleClockOut = () => {
+    setShowClockOutModal(true);
+  };
+
+  const handleClockSuccess = () => {
+    // モーダルを閉じた後に勤怠状態を更新
+    fetchTodayStatus();
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
-      <header className="bg-white shadow">
-        <div className="flex items-center justify-between h-16 px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
-          <h1 className="text-xl font-bold text-gray-900">Dashboard</h1>
-          <div className="flex items-center space-x-4">
-            <span className="text-sm text-gray-700">
-              {user?.name || 'ユーザー'}さん
-            </span>
-            <button
-              onClick={handleLogout}
-              className="px-3 py-1 text-sm text-red-600 border border-red-600 rounded hover:bg-red-50"
-            >
-              ログアウト
-            </button>
-          </div>
-        </div>
-      </header>
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-2xl font-bold mb-6">ダッシュボード</h1>
       
-      <main className="flex-grow p-4 mx-auto w-full max-w-4xl">
-        <div className="mb-6 flex justify-between items-center">
-          <h2 className="text-lg font-medium text-gray-900">タスク一覧</h2>
-          <AddTaskButton onAddClick={() => setShowAddTask(true)} />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        {/* 勤怠状態カード */}
+        <div>
+          <h2 className="text-lg font-medium mb-4">今日の勤怠状態</h2>
+          <AttendanceStatusCard
+            onClockIn={handleClockIn}
+            onClockOut={handleClockOut}
+          />
         </div>
         
+        {/* 休暇状況カード */}
         <div>
-          <TaskList onRefreshNeeded={handleTaskSaved} />
+          <h2 className="text-lg font-medium mb-4">休暇状況</h2>
+          <div className="bg-white rounded-lg shadow p-6">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-yellow-50 p-4 rounded-lg">
+                <p className="text-sm text-yellow-600 mb-1">申請中の休暇</p>
+                <p className="text-2xl font-bold">{pendingLeaves}件</p>
+              </div>
+              <div className="bg-green-50 p-4 rounded-lg">
+                <p className="text-sm text-green-600 mb-1">承認済みの休暇</p>
+                <p className="text-2xl font-bold">{approvedLeaves}件</p>
+              </div>
+            </div>
+            <div className="mt-4">
+              <a
+                href="/leave"
+                className="text-blue-600 hover:text-blue-800 hover:underline"
+              >
+                休暇申請一覧を見る →
+              </a>
+            </div>
+          </div>
         </div>
-      </main>
+      </div>
       
-      <footer className="py-4 bg-white shadow">
-        <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
-          <p className="text-sm text-center text-gray-500">
-            &copy; 2025 TODOアプリ
-          </p>
+      {/* クイックリンク */}
+      <div className="mb-8">
+        <h2 className="text-lg font-medium mb-4">クイックリンク</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <a
+            href="/attendance"
+            className="bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow"
+          >
+            <h3 className="text-lg font-medium mb-2">勤怠管理</h3>
+            <p className="text-gray-600">勤怠記録の確認や勤務時間サマリーを表示します</p>
+          </a>
+          <a
+            href="/leave"
+            className="bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow"
+          >
+            <h3 className="text-lg font-medium mb-2">休暇申請</h3>
+            <p className="text-gray-600">休暇の申請や申請状況の確認ができます</p>
+          </a>
+          <a
+            href="/reports"
+            className="bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow"
+          >
+            <h3 className="text-lg font-medium mb-2">レポート</h3>
+            <p className="text-gray-600">勤怠や休暇のレポートを確認できます</p>
+          </a>
         </div>
-      </footer>
+      </div>
       
-      {/* タスク追加モーダル */}
-      <TaskFormModal
-        isOpen={showAddTask}
-        onClose={() => setShowAddTask(false)}
-        onTaskSaved={handleTaskSaved}
+      {/* 出勤打刻モーダル */}
+      <AttendanceClockModal
+        isOpen={showClockInModal}
+        type="in"
+        onClose={() => setShowClockInModal(false)}
+        onSuccess={handleClockSuccess}
+      />
+      
+      {/* 退勤打刻モーダル */}
+      <AttendanceClockModal
+        isOpen={showClockOutModal}
+        type="out"
+        onClose={() => setShowClockOutModal(false)}
+        onSuccess={handleClockSuccess}
       />
     </div>
   );
