@@ -1,0 +1,27 @@
+FROM --platform=linux/arm64 node:20-alpine
+
+WORKDIR /app
+
+# パッケージ管理ファイルをコピー
+COPY package*.json ./
+
+# bcryptの代わりにbcryptjsを使用
+RUN npm uninstall bcrypt || true
+RUN npm install bcryptjs
+
+# 依存関係のインストール
+RUN npm install
+RUN npm install ts-node typescript @prisma/client prisma
+
+
+# ソースコードのコピー
+COPY . .
+
+COPY prisma ./prisma
+COPY .env ./
+
+# Prisma Clientの生成
+RUN npx prisma generate
+
+# 開発サーバーの起動
+CMD ["npm", "run", "dev"]

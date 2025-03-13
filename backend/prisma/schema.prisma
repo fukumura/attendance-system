@@ -1,0 +1,74 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String            @id @default(uuid())
+  email           String            @unique
+  password        String
+  name            String
+  role            Role              @default(EMPLOYEE)
+  attendanceRecords AttendanceRecord[]
+  leaveRequests   LeaveRequest[]
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+}
+
+model AttendanceRecord {
+  id              String            @id @default(uuid())
+  user            User              @relation(fields: [userId], references: [id])
+  userId          String
+  date            DateTime          @db.Date
+  clockInTime     DateTime
+  clockOutTime    DateTime?
+  notes           String?
+  location        String?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  @@index([userId])
+  @@index([date])
+}
+
+model LeaveRequest {
+  id              String            @id @default(uuid())
+  user            User              @relation(fields: [userId], references: [id])
+  userId          String
+  startDate       DateTime          @db.Date
+  endDate         DateTime          @db.Date
+  leaveType       LeaveType
+  reason          String
+  status          LeaveStatus       @default(PENDING)
+  comment         String?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  @@index([userId])
+  @@index([status])
+}
+
+enum Role {
+  EMPLOYEE
+  ADMIN
+}
+
+enum LeaveType {
+  PAID
+  UNPAID
+  SICK
+  OTHER
+}
+
+enum LeaveStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
