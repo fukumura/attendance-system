@@ -6,6 +6,7 @@ export interface User {
   id: string;
   email: string;
   name: string;
+  role: 'ADMIN' | 'EMPLOYEE';
 }
 
 // 認証状態の型定義
