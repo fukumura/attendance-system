@@ -1,4 +1,4 @@
-# 勤怠管理システム | Attendance Management System
+ 勤怠管理システム | Attendance Management System
 
 [![TypeScript](https://img.shields.io/badge/TypeScript-4.9.5-blue.svg)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-18.2.0-blue.svg)](https://reactjs.org/)
@@ -92,9 +92,15 @@ npm run dev
 
 ### Dockerを使用したセットアップ | Docker Setup
 
+Docker Composeを使用して簡単にアプリケーションを起動できます：
+
 ```bash
 docker-compose up -d
 ```
+
+詳細なDockerセットアップ手順は [docs/docker-setup.md](docs/docker-setup.md) を参照してください。
+
+*For detailed Docker setup instructions, refer to [docs/docker-setup.md](docs/docker-setup.md).*
 
 ## 使用方法 | Usage
 
