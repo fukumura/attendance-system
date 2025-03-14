@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { authApi } from '../services/api';
+import { authApi, adminApi } from '../services/api';
 import { useAuthStore } from '../store/authStore';
 
 export const useAuth = () => {
@@ -8,20 +8,39 @@ export const useAuth = () => {
   const { login, logout, setIsLoading, setError } = useAuthStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // ユーザー登録
-  const handleRegister = async (email: string, password: string, name: string) => {
+  // ユーザー登録（一般ユーザー向け）
+  const handleRegister = async (email: string, password: string, name: string, isAdmin = false) => {
     setIsSubmitting(true);
     setError(null);
     
     try {
-      const response = await authApi.register(email, password, name);
-      if (response.status === 'success') {
-        // ユーザー情報とトークンを保存
-        login(response.data, response.data.token);
-        // ダッシュボードにリダイレクト
-        navigate('/dashboard');
-        return true;
+      // 管理者による登録か一般ユーザーによる登録かで分岐
+      if (isAdmin) {
+        // 管理者による登録（管理者ダッシュボードから）
+        const response = await adminApi.createUser({
+          email,
+          password,
+          name,
+          role: 'EMPLOYEE', // デフォルトは一般ユーザー
+        });
+        
+        if (response.status === 'success') {
+          return true;
+        }
+      } else {
+        // 一般ユーザーによる登録（登録ページから）
+        const response = await authApi.register(email, password, name);
+        
+        if (response.status === 'success') {
+          // ユーザー情報とトークンを保存
+          login(response.data.user, response.data.token);
+          // ダッシュボードにリダイレクト
+          navigate('/dashboard');
+          return true;
+        }
       }
+      
+      return false;
     } catch (error: any) {
       // エラーメッセージの設定
       const errorMessage =
@@ -42,7 +61,7 @@ export const useAuth = () => {
       const response = await authApi.login(email, password);
       if (response.status === 'success') {
         // ユーザー情報とトークンを保存
-        login(response.data, response.data.token);
+        login(response.data.user, response.data.token);
         // ダッシュボードにリダイレクト
         navigate('/dashboard');
         return true;

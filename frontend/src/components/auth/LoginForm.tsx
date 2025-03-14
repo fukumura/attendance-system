@@ -183,10 +183,7 @@ const LoginForm = () => {
 
       <div className="mt-8 text-center">
         <p className="text-sm text-gray-600">
-          アカウントをお持ちでない方は{' '}
-          <Link to="/register" className="font-medium text-blue-600 hover:text-blue-500 transition-colors">
-            新規登録
-          </Link>
+          アカウントの作成は管理者にお問い合わせください
         </p>
       </div>
     </div>
