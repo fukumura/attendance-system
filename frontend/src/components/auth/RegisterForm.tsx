@@ -3,7 +3,12 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { useAuthStore } from '../../store/authStore';
 
-const RegisterForm = () => {
+interface RegisterFormProps {
+  onSuccess?: () => void;
+  isAdminForm?: boolean;
+}
+
+const RegisterForm = ({ onSuccess, isAdminForm = false }: RegisterFormProps) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -43,17 +48,30 @@ const RegisterForm = () => {
       return;
     }
     
-    await handleRegister(email, password, name);
+    const success = await handleRegister(email, password, name, isAdminForm);
+    
+    if (success && onSuccess) {
+      onSuccess();
+      // 管理者フォームの場合はフォームをリセット
+      if (isAdminForm) {
+        setName('');
+        setEmail('');
+        setPassword('');
+        setConfirmPassword('');
+      }
+    }
   };
 
   return (
-    <div className="bg-white shadow-md rounded-lg px-8 pt-6 pb-8 mb-4 max-w-md w-full">
-      <div className="mb-6 text-center">
-        <h1 className="text-2xl font-bold text-gray-800 mb-2">アカウント登録</h1>
-        <p className="text-gray-600 text-sm">
-          新しいアカウントを作成して、勤怠の管理をしましょう
-        </p>
-      </div>
+    <div className={`bg-white shadow-md rounded-lg px-8 pt-6 pb-8 mb-4 ${!isAdminForm ? 'max-w-md w-full' : 'w-full'}`}>
+      {!isAdminForm && (
+        <div className="mb-6 text-center">
+          <h1 className="text-2xl font-bold text-gray-800 mb-2">アカウント登録</h1>
+          <p className="text-gray-600 text-sm">
+            新しいアカウントを作成して、勤怠の管理をしましょう
+          </p>
+        </div>
+      )}
 
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
@@ -139,14 +157,16 @@ const RegisterForm = () => {
         </div>
       </form>
 
-      <div className="text-center mt-6">
-        <p className="text-sm text-gray-600">
-          既にアカウントをお持ちの方は{' '}
-          <Link to="/login" className="text-blue-500 hover:text-blue-700 font-medium">
-            ログイン
-          </Link>
-        </p>
-      </div>
+      {!isAdminForm && (
+        <div className="text-center mt-6">
+          <p className="text-sm text-gray-600">
+            既にアカウントをお持ちの方は{' '}
+            <Link to="/login" className="text-blue-500 hover:text-blue-700 font-medium">
+              ログイン
+            </Link>
+          </p>
+        </div>
+      )}
     </div>
   );
 };

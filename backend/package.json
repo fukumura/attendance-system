@@ -13,6 +13,9 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:seed": "ts-node prisma/seed.ts"
   },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
+  },
   "dependencies": {
     "@prisma/client": "^4.x",
     "bcryptjs": "^2.4.3",
@@ -28,7 +31,7 @@
     "@types/express": "^4.x",
     "@types/jest": "^29.x",
     "@types/jsonwebtoken": "^9.x",
-    "@types/node": "^18.x",
+    "@types/node": "^18.19.80",
     "@typescript-eslint/eslint-plugin": "^5.x",
     "@typescript-eslint/parser": "^5.x",
     "eslint": "^8.x",
@@ -37,7 +40,7 @@
     "prettier": "^2.x",
     "prisma": "^4.x",
     "ts-jest": "^29.x",
-    "ts-node": "^10.x",
-    "typescript": "^5.x"
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.2"
   }
 }

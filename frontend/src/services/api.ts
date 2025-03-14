@@ -11,6 +11,23 @@ export interface AuthResponse {
   token: string;
 }
 
+// 管理者APIのユーザー型定義（createdAtとupdatedAtを含む）
+export interface AdminUser extends User {
+  createdAt: string;
+  updatedAt: string;
+}
+
+// ユーザー管理レスポンスの型定義
+export interface UsersResponse {
+  data: AdminUser[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
 // 勤怠記録レスポンスの型定義
 export interface AttendanceRecordsResponse {
   records: AttendanceRecord[];
@@ -218,6 +235,39 @@ export const taskApi = {
   // タスク完了状態切り替え
   toggleTaskCompletion: async (id: string): Promise<ApiResponse<Task>> => {
     const response = await api.patch(`/api/tasks/${id}/toggle`);
+    return response.data;
+  },
+};
+
+// 管理者API
+export const adminApi = {
+  // ユーザー一覧取得
+  getUsers: async (params?: { page?: number; limit?: number }): Promise<ApiResponse<UsersResponse>> => {
+    const response = await api.get('/api/admin/users', { params });
+    return response.data;
+  },
+  
+  // ユーザー詳細取得
+  getUser: async (id: string): Promise<ApiResponse<User>> => {
+    const response = await api.get(`/api/admin/users/${id}`);
+    return response.data;
+  },
+  
+  // ユーザー作成
+  createUser: async (data: { email: string; password: string; name: string; role?: 'ADMIN' | 'EMPLOYEE' }): Promise<ApiResponse<User>> => {
+    const response = await api.post('/api/admin/users', data);
+    return response.data;
+  },
+  
+  // ユーザー更新
+  updateUser: async (id: string, data: { email?: string; password?: string; name?: string; role?: 'ADMIN' | 'EMPLOYEE' }): Promise<ApiResponse<User>> => {
+    const response = await api.put(`/api/admin/users/${id}`, data);
+    return response.data;
+  },
+  
+  // ユーザー削除
+  deleteUser: async (id: string): Promise<ApiResponse<{ success: boolean }>> => {
+    const response = await api.delete(`/api/admin/users/${id}`);
     return response.data;
   },
 };
