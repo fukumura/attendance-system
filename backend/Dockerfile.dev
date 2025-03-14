@@ -2,17 +2,19 @@ FROM --platform=linux/arm64 node:20-alpine
 
 WORKDIR /app
 
+# 必要なパッケージをインストール（OpenSSLを含む）
+RUN apk add --no-cache \
+    openssl \
+    libssl3 \
+    libcrypto3 \
+    libc6-compat
+
 # パッケージ管理ファイルをコピー
 COPY package*.json ./
-
-# bcryptの代わりにbcryptjsを使用
-RUN npm uninstall bcrypt || true
-RUN npm install bcryptjs
 
 # 依存関係のインストール
 RUN npm install
 RUN npm install ts-node typescript @prisma/client prisma
-
 
 # ソースコードのコピー
 COPY . .

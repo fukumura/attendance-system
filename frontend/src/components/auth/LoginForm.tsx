@@ -86,7 +86,7 @@ const LoginForm = () => {
       <div className="text-center mb-8">
         <h2 className="text-2xl font-bold text-gray-800">ログイン</h2>
         <p className="mt-2 text-gray-600">
-          アカウントにログインして、タスクを管理しましょう
+          アカウントにログインして、勤怠の管理をしましょう
         </p>
       </div>
 

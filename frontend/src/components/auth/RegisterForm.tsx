@@ -51,7 +51,7 @@ const RegisterForm = () => {
       <div className="mb-6 text-center">
         <h1 className="text-2xl font-bold text-gray-800 mb-2">アカウント登録</h1>
         <p className="text-gray-600 text-sm">
-          新しいアカウントを作成して、タスクを管理しましょう
+          新しいアカウントを作成して、勤怠の管理をしましょう
         </p>
       </div>
 
