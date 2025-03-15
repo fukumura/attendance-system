@@ -16,8 +16,51 @@ dotenv.config();
 // Initialize Express app
 const app = express();
 
-// Initialize Prisma client
-export const prisma = new PrismaClient();
+// Initialize Prisma client with detailed logging
+export const prisma = new PrismaClient({
+  log: [
+    {
+      emit: 'event',
+      level: 'query',
+    },
+    {
+      emit: 'event',
+      level: 'error',
+    },
+    {
+      emit: 'event',
+      level: 'info',
+    },
+    {
+      emit: 'event',
+      level: 'warn',
+    },
+  ],
+});
+
+// Prismaのイベントリスナーを設定
+prisma.$on('error', (e) => {
+  console.error('Prisma error:', e);
+});
+
+prisma.$on('query', (e) => {
+  console.log('Prisma query:', e);
+});
+
+// データベース接続テスト
+async function testDatabaseConnection() {
+  try {
+    console.log('Testing database connection...');
+    await prisma.$connect();
+    console.log('Database connection successful');
+  } catch (error) {
+    console.error('Database connection failed:', error);
+    // プロセスを終了しない - エラーをログに記録するだけ
+  }
+}
+
+// アプリケーション起動時にデータベース接続をテスト
+testDatabaseConnection();
 
 // Middleware
 app.use(cors());

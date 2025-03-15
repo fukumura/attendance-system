@@ -39,16 +39,25 @@ const UserManagementPage = () => {
     
     try {
       const response = await adminApi.getUsers();
-      if (response.status === 'success' && response.data) {
+      if (response.status === 'success') {
         // APIレスポンスのユーザーデータをUserListItem型に変換
-        const userList: UserListItem[] = response.data.data.map(user => ({
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          role: user.role,
-          createdAt: user.createdAt
-        }));
-        setUsers(userList);
+        // データが存在するか確認し、存在しない場合は空の配列を使用
+        const userData = response.data || [];
+        console.log('User data from API:', userData); // デバッグ用ログ
+        
+        if (Array.isArray(userData)) {
+          const userList: UserListItem[] = userData.map(user => ({
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            createdAt: user.createdAt
+          }));
+          setUsers(userList);
+        } else {
+          console.error('User data is not an array:', userData);
+          setError('ユーザーデータの形式が不正です');
+        }
       } else {
         setError('ユーザーデータの取得に失敗しました');
       }
