@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authApi, adminApi } from '../services/api';
-import { useAuthStore } from '../store/authStore';
+import { useAuthStore, Company } from '../store/authStore';
+import { companyApi } from '../services/companyApi';
 
 export const useAuth = () => {
   const navigate = useNavigate();
@@ -38,7 +39,7 @@ export const useAuth = () => {
         
         if (response.status === 'success') {
           // ユーザー情報とトークンを保存
-          login(response.data.user, response.data.token);
+          login(response.data.user, null, response.data.token);
           // ダッシュボードにリダイレクト
           navigate('/dashboard');
           return true;
@@ -65,8 +66,22 @@ export const useAuth = () => {
     try {
       const response = await authApi.login(email, password);
       if (response.status === 'success') {
-        // ユーザー情報とトークンを保存
-        login(response.data.user, response.data.token);
+        // ユーザーの企業情報を取得（企業IDがある場合）
+        let company: Company | null = null;
+        if (response.data.user.companyId) {
+          try {
+            const companyResponse = await companyApi.getCompany(response.data.user.companyId);
+            if (companyResponse.status === 'success') {
+              company = companyResponse.data;
+            }
+          } catch (companyError) {
+            console.error('企業情報の取得に失敗しました:', companyError);
+          }
+        }
+        
+        // ユーザー情報、企業情報、トークンを保存
+        login(response.data.user, company, response.data.token);
+        
         // ダッシュボードにリダイレクト
         navigate('/dashboard');
         return true;
@@ -97,6 +112,19 @@ export const useAuth = () => {
       if (response.status === 'success') {
         // ユーザー情報を更新（トークンはそのまま）
         useAuthStore.getState().setUser(response.data);
+        
+        // ユーザーの企業情報を取得（企業IDがある場合）
+        if (response.data.companyId) {
+          try {
+            const companyResponse = await companyApi.getCompany(response.data.companyId);
+            if (companyResponse.status === 'success') {
+              useAuthStore.getState().setCompany(companyResponse.data);
+            }
+          } catch (companyError) {
+            console.error('企業情報の取得に失敗しました:', companyError);
+          }
+        }
+        
         return response.data;
       }
     } catch (error) {

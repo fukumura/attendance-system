@@ -9,6 +9,7 @@ import attendanceRoutes from './routes/attendanceRoutes';
 import leaveRoutes from './routes/leaveRoutes';
 import reportRoutes from './routes/reportRoutes';
 import adminRoutes from './routes/adminRoutes';
+import companyRoutes from './routes/companyRoutes';
 
 // Load environment variables
 dotenv.config();
@@ -89,6 +90,7 @@ app.use('/api/attendance', attendanceRoutes);
 app.use('/api/leave', leaveRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/companies', companyRoutes);
 
 // 404 handler
 app.use((_req: Request, res: Response) => {

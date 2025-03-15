@@ -5,9 +5,8 @@ import { AttendancePage } from './pages/attendance';
 import { LeavePage } from './pages/leave';
 import { ReportPage } from './pages/report';
 import { ProfilePage } from './pages/profile';
-import { AdminDashboardPage, UserManagementPage } from './pages/admin';
-import ProtectedRoute from './components/auth/Protectedroute';
-import AdminProtectedRoute from './components/auth/AdminProtectedRoute';
+import { AdminDashboardPage, UserManagementPage, CompanyManagementPage, SuperAdminManagementPage } from './pages/admin';
+import { ProtectedRoute, AdminProtectedRoute, SuperAdminProtectedRoute } from './components/auth';
 import { Layout } from './components/layout';
 import './App.css';
 
@@ -71,6 +70,20 @@ function App() {
               <UserManagementPage />
             </Layout>
           </AdminProtectedRoute>
+        } />
+        <Route path="/admin/companies" element={
+          <AdminProtectedRoute>
+            <Layout>
+              <CompanyManagementPage />
+            </Layout>
+          </AdminProtectedRoute>
+        } />
+        <Route path="/admin/super-admins" element={
+          <SuperAdminProtectedRoute>
+            <Layout>
+              <SuperAdminManagementPage />
+            </Layout>
+          </SuperAdminProtectedRoute>
         } />
         
         {/* その他のルートはログインにリダイレクト */}

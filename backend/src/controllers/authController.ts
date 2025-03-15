@@ -27,9 +27,9 @@ const loginSchema = z.object({
 });
 
 // JWTトークン生成関数
-const generateToken = (userId: string): string => {
+const generateToken = (userId: string, companyId: string | null, role: string): string => {
   const secret = process.env.JWT_SECRET || 'your-secret-key';
-  return jwt.sign({ userId }, secret, { expiresIn: '24h' });
+  return jwt.sign({ userId, companyId, role }, secret, { expiresIn: '24h' });
 };
 
 export const authController = {
@@ -189,7 +189,7 @@ export const authController = {
       }
       
       // メールアドレスの重複チェック
-      const existingUser = await prisma.user.findUnique({
+      const existingUser = await prisma.user.findFirst({
         where: { email: validatedData.email },
       });
       
@@ -217,7 +217,7 @@ export const authController = {
       const { password, ...userWithoutPassword } = newAdmin;
       
       // JWTトークンの生成
-      const token = generateToken(newAdmin.id);
+      const token = generateToken(newAdmin.id, null, newAdmin.role);
       
       return res.status(201).json({
         status: 'success',
@@ -249,7 +249,7 @@ export const authController = {
       const validatedData = registerSchema.parse(req.body);
       
       // メールアドレスの重複チェック
-      const existingUser = await prisma.user.findUnique({
+      const existingUser = await prisma.user.findFirst({
         where: { email: validatedData.email },
       });
       
@@ -277,7 +277,7 @@ export const authController = {
       const { password, ...userWithoutPassword } = newUser;
       
       // JWTトークンの生成
-      const token = generateToken(newUser.id);
+      const token = generateToken(newUser.id, null, newUser.role);
       
       return res.status(201).json({
         status: 'success',
@@ -309,7 +309,7 @@ export const authController = {
       const validatedData = loginSchema.parse(req.body);
       
       // ユーザーの検索
-      const user = await prisma.user.findUnique({
+      const user = await prisma.user.findFirst({
         where: { email: validatedData.email },
       });
       
@@ -337,7 +337,7 @@ export const authController = {
       const { password, ...userWithoutPassword } = user;
       
       // JWTトークンの生成
-      const token = generateToken(user.id);
+      const token = generateToken(user.id, null, user.role);
       
       return res.status(200).json({
         status: 'success',

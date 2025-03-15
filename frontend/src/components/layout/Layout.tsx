@@ -1,23 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
+import { companyApi } from '../../services/companyApi';
 
 interface LayoutProps {
   children: React.ReactNode;
 }
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
-  const { user, logout } = useAuthStore();
+  const { user, company, logout, isSuperAdmin, switchCompany } = useAuthStore();
+  const [isCompanySwitcherOpen, setIsCompanySwitcherOpen] = useState(false);
+  const [companies, setCompanies] = useState<any[]>([]);
+  const [isLoadingCompanies, setIsLoadingCompanies] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  // モバイルメニューが開いているときに画面外クリックで閉じる
+  // モバイルメニューとカンパニースイッチャーが開いているときに画面外クリックで閉じる
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
       if (isMobileMenuOpen && !target.closest('#mobile-menu') && !target.closest('#menu-button')) {
         setIsMobileMenuOpen(false);
+      }
+      if (isCompanySwitcherOpen && !target.closest('#company-switcher') && !target.closest('#company-switcher-button')) {
+        setIsCompanySwitcherOpen(false);
       }
     };
 
@@ -25,7 +32,26 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     return () => {
       document.removeEventListener('click', handleClickOutside);
     };
-  }, [isMobileMenuOpen]);
+  }, [isMobileMenuOpen, isCompanySwitcherOpen]);
+  
+  // スーパー管理者の場合、企業一覧を取得
+  useEffect(() => {
+    if (isSuperAdmin() && isCompanySwitcherOpen && companies.length === 0) {
+      setIsLoadingCompanies(true);
+      companyApi.getCompanies()
+        .then(response => {
+          if (response.status === 'success') {
+            setCompanies(response.data.data);
+          }
+        })
+        .catch(error => {
+          console.error('企業一覧の取得に失敗しました:', error);
+        })
+        .finally(() => {
+          setIsLoadingCompanies(false);
+        });
+    }
+  }, [isSuperAdmin, isCompanySwitcherOpen, companies.length]);
 
   // ページ遷移時にモバイルメニューを閉じる
   useEffect(() => {
@@ -67,9 +93,67 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex justify-between flex-1 md:justify-start">
-              {/* ロゴ */}
+              {/* ロゴと企業名 */}
               <div className="flex-shrink-0 flex items-center">
                 <h1 className="text-lg md:text-xl font-bold text-gray-900">勤怠管理システム</h1>
+                {company && (
+                  <div className="ml-2 px-2 py-1 bg-gray-100 rounded text-sm text-gray-700">
+                    {company.name}
+                  </div>
+                )}
+                
+                {/* スーパー管理者用企業切り替えボタン */}
+                {isSuperAdmin() && (
+                  <div className="relative ml-2">
+                    <button
+                      id="company-switcher-button"
+                      type="button"
+                      className="inline-flex items-center px-2 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                      onClick={() => setIsCompanySwitcherOpen(!isCompanySwitcherOpen)}
+                    >
+                      <span>{company ? '企業切替' : '企業選択'}</span>
+                      <svg className="ml-1 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                      </svg>
+                    </button>
+                    
+                    {/* 企業切り替えドロップダウン */}
+                    {isCompanySwitcherOpen && (
+                      <div
+                        id="company-switcher"
+                        className="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-20"
+                      >
+                        <div className="py-1" role="menu" aria-orientation="vertical">
+                          {isLoadingCompanies ? (
+                            <div className="px-4 py-2 text-sm text-gray-500">読み込み中...</div>
+                          ) : companies.length > 0 ? (
+                            companies.map(companyItem => (
+                              <button
+                                key={companyItem.id}
+                                className={`w-full text-left block px-4 py-2 text-sm ${
+                                  company?.id === companyItem.id
+                                    ? 'bg-gray-100 text-gray-900'
+                                    : 'text-gray-700 hover:bg-gray-50'
+                                }`}
+                                onClick={() => {
+                                  switchCompany(companyItem);
+                                  setIsCompanySwitcherOpen(false);
+                                }}
+                              >
+                                {companyItem.name}
+                                <span className="ml-2 text-xs text-gray-500">
+                                  {companyItem.publicId}
+                                </span>
+                              </button>
+                            ))
+                          ) : (
+                            <div className="px-4 py-2 text-sm text-gray-500">企業が見つかりません</div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
               
               {/* デスクトップナビゲーション */}
@@ -78,7 +162,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 <NavLink to="/attendance">勤怠管理</NavLink>
                 <NavLink to="/leave">休暇申請</NavLink>
                 <NavLink to="/reports">レポート</NavLink>
-                {user?.role === 'ADMIN' && (
+                {(user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN') && (
                   <NavLink to="/admin">管理者</NavLink>
                 )}
               </nav>
@@ -179,7 +263,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             <NavLink to="/attendance">勤怠管理</NavLink>
             <NavLink to="/leave">休暇申請</NavLink>
             <NavLink to="/reports">レポート</NavLink>
-            {user?.role === 'ADMIN' && (
+            {(user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN') && (
               <NavLink to="/admin">管理者</NavLink>
             )}
           </div>

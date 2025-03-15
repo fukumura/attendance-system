@@ -1,6 +1,6 @@
 import { PrismaClient, Role, LeaveType, LeaveStatus } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
-
+import * as crypto from 'crypto';
 
 const prisma = new PrismaClient();
 
@@ -9,10 +9,44 @@ async function main() {
   await prisma.leaveRequest.deleteMany();
   await prisma.attendanceRecord.deleteMany();
   await prisma.user.deleteMany();
+  await prisma.company.deleteMany();
 
   console.log('Seeding database...');
+  
+  // Create companies
+  const company1 = await prisma.company.create({
+    data: {
+      name: '株式会社サンプル',
+      publicId: crypto.randomBytes(8).toString('hex'),
+      logoUrl: 'https://via.placeholder.com/150?text=Sample+Inc',
+    },
+  });
+  
+  const company2 = await prisma.company.create({
+    data: {
+      name: 'テスト企業株式会社',
+      publicId: crypto.randomBytes(8).toString('hex'),
+      logoUrl: 'https://via.placeholder.com/150?text=Test+Corp',
+    },
+  });
+  
+  console.log('Created companies');
+  
+  // Create super admin (not associated with any company)
+  const superAdminPassword = await bcrypt.hash('SuperAdmin123', 10);
+  const superAdmin = await prisma.user.create({
+    data: {
+      email: 'superadmin@example.com',
+      password: superAdminPassword,
+      name: 'スーパー管理者',
+      role: Role.SUPER_ADMIN,
+      // companyId is null
+    },
+  });
+  
+  console.log('Created super admin');
 
-  // Create users
+  // Create users for company 1
   const adminPassword = await bcrypt.hash('Admin123', 10);
   const employeePassword = await bcrypt.hash('employee123', 10);
 
@@ -22,6 +56,7 @@ async function main() {
       password: adminPassword,
       name: '管理者 太郎',
       role: Role.ADMIN,
+      companyId: company1.id,
     },
   });
 
@@ -31,6 +66,7 @@ async function main() {
       password: employeePassword,
       name: '社員 一郎',
       role: Role.EMPLOYEE,
+      companyId: company1.id,
     },
   });
 
@@ -40,6 +76,28 @@ async function main() {
       password: employeePassword,
       name: '社員 二郎',
       role: Role.EMPLOYEE,
+      companyId: company1.id,
+    },
+  });
+  
+  // Create users for company 2
+  const admin2 = await prisma.user.create({
+    data: {
+      email: 'admin2@example.com',
+      password: adminPassword,
+      name: '管理者 花子',
+      role: Role.ADMIN,
+      companyId: company2.id,
+    },
+  });
+  
+  const employee3 = await prisma.user.create({
+    data: {
+      email: 'employee3@example.com',
+      password: employeePassword,
+      name: '社員 三郎',
+      role: Role.EMPLOYEE,
+      companyId: company2.id,
     },
   });
 
