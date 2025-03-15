@@ -36,6 +36,7 @@
     "@typescript-eslint/parser": "^5.x",
     "eslint": "^8.x",
     "jest": "^29.x",
+    "jest-mock-extended": "^4.0.0-beta1",
     "nodemon": "^2.0.22",
     "prettier": "^2.x",
     "prisma": "^4.x",
