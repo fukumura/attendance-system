@@ -59,6 +59,230 @@
 
 ## APIエンドポイント詳細
 
+### 企業管理API
+
+#### 企業一覧取得
+- **エンドポイント**: `GET /companies`
+- **説明**: 企業一覧を取得（スーパー管理者のみ）
+- **認証**: 必須（スーパー管理者権限）
+- **クエリパラメータ**:
+  - `page`: ページ番号（デフォルト: 1）
+  - `limit`: 1ページあたりの件数（デフォルト: 10、最大: 100）
+- **レスポンス**:
+  ```json
+  {
+    "status": "success",
+    "data": [
+      {
+        "id": "550e8400-e29b-41d4-a716-446655440000",
+        "publicId": "COMP123456",
+        "name": "株式会社サンプル",
+        "logoUrl": "https://example.com/logo.png",
+        "createdAt": "2025-03-15T10:52:00Z",
+        "updatedAt": "2025-03-15T10:52:00Z"
+      },
+      {
+        "id": "550e8400-e29b-41d4-a716-446655440001",
+        "publicId": "COMP789012",
+        "name": "テスト株式会社",
+        "logoUrl": null,
+        "createdAt": "2025-03-15T11:30:00Z",
+        "updatedAt": "2025-03-15T11:30:00Z"
+      }
+    ],
+    "pagination": {
+      "page": 1,
+      "limit": 10,
+      "total": 2,
+      "totalPages": 1
+    }
+  }
+  ```
+
+#### 企業詳細取得
+- **エンドポイント**: `GET /companies/:id`
+- **説明**: 指定したIDの企業情報を取得
+- **認証**: 必須（スーパー管理者または該当企業の管理者）
+- **パスパラメータ**:
+  - `id`: 企業ID（UUID）または公開ID
+- **レスポンス**:
+  ```json
+  {
+    "status": "success",
+    "data": {
+      "id": "550e8400-e29b-41d4-a716-446655440000",
+      "publicId": "COMP123456",
+      "name": "株式会社サンプル",
+      "logoUrl": "https://example.com/logo.png",
+      "settings": {
+        "workHours": {
+          "startTime": "09:00",
+          "endTime": "18:00",
+          "breakTime": 60
+        },
+        "holidays": ["Saturday", "Sunday"]
+      },
+      "createdAt": "2025-03-15T10:52:00Z",
+      "updatedAt": "2025-03-15T10:52:00Z"
+    }
+  }
+  ```
+
+#### 企業作成
+- **エンドポイント**: `POST /companies`
+- **説明**: 新しい企業を作成（スーパー管理者のみ）
+- **認証**: 必須（スーパー管理者権限）
+- **リクエスト**:
+  ```json
+  {
+    "name": "新規企業株式会社",
+    "logoUrl": "https://example.com/newlogo.png",
+    "settings": {
+      "workHours": {
+        "startTime": "10:00",
+        "endTime": "19:00",
+        "breakTime": 60
+      }
+    }
+  }
+  ```
+- **レスポンス**:
+  ```json
+  {
+    "status": "success",
+    "data": {
+      "id": "550e8400-e29b-41d4-a716-446655440002",
+      "publicId": "COMP345678",
+      "name": "新規企業株式会社",
+      "logoUrl": "https://example.com/newlogo.png",
+      "settings": {
+        "workHours": {
+          "startTime": "10:00",
+          "endTime": "19:00",
+          "breakTime": 60
+        }
+      },
+      "createdAt": "2025-03-16T00:30:00Z",
+      "updatedAt": "2025-03-16T00:30:00Z"
+    }
+  }
+  ```
+
+#### 企業更新
+- **エンドポイント**: `PUT /companies/:id`
+- **説明**: 指定したIDの企業情報を更新（スーパー管理者のみ）
+- **認証**: 必須（スーパー管理者権限）
+- **パスパラメータ**:
+  - `id`: 企業ID（UUID）または公開ID
+- **リクエスト**:
+  ```json
+  {
+    "name": "更新企業株式会社",
+    "logoUrl": "https://example.com/updatedlogo.png"
+  }
+  ```
+- **レスポンス**:
+  ```json
+  {
+    "status": "success",
+    "data": {
+      "id": "550e8400-e29b-41d4-a716-446655440000",
+      "publicId": "COMP123456",
+      "name": "更新企業株式会社",
+      "logoUrl": "https://example.com/updatedlogo.png",
+      "settings": {
+        "workHours": {
+          "startTime": "09:00",
+          "endTime": "18:00",
+          "breakTime": 60
+        },
+        "holidays": ["Saturday", "Sunday"]
+      },
+      "createdAt": "2025-03-15T10:52:00Z",
+      "updatedAt": "2025-03-16T00:45:00Z"
+    }
+  }
+  ```
+
+#### 企業削除
+- **エンドポイント**: `DELETE /companies/:id`
+- **説明**: 指定したIDの企業を削除（スーパー管理者のみ）
+- **認証**: 必須（スーパー管理者権限）
+- **パスパラメータ**:
+  - `id`: 企業ID（UUID）または公開ID
+- **レスポンス**:
+  ```json
+  {
+    "status": "success",
+    "message": "企業を削除しました"
+  }
+  ```
+
+#### 企業設定取得
+- **エンドポイント**: `GET /companies/:id/settings`
+- **説明**: 指定した企業の設定を取得
+- **認証**: 必須（スーパー管理者または該当企業の管理者）
+- **パスパラメータ**:
+  - `id`: 企業ID（UUID）または公開ID
+- **レスポンス**:
+  ```json
+  {
+    "status": "success",
+    "data": {
+      "workHours": {
+        "startTime": "09:00",
+        "endTime": "18:00",
+        "breakTime": 60
+      },
+      "holidays": ["Saturday", "Sunday"],
+      "leavePolicy": {
+        "paidLeavePerYear": 20,
+        "sickLeavePerYear": 5
+      }
+    }
+  }
+  ```
+
+#### 企業設定更新
+- **エンドポイント**: `PUT /companies/:id/settings`
+- **説明**: 指定した企業の設定を更新
+- **認証**: 必須（スーパー管理者または該当企業の管理者）
+- **パスパラメータ**:
+  - `id`: 企業ID（UUID）または公開ID
+- **リクエスト**:
+  ```json
+  {
+    "workHours": {
+      "startTime": "09:30",
+      "endTime": "18:30",
+      "breakTime": 60
+    },
+    "holidays": ["Saturday", "Sunday", "Friday"],
+    "leavePolicy": {
+      "paidLeavePerYear": 25,
+      "sickLeavePerYear": 10
+    }
+  }
+  ```
+- **レスポンス**:
+  ```json
+  {
+    "status": "success",
+    "data": {
+      "workHours": {
+        "startTime": "09:30",
+        "endTime": "18:30",
+        "breakTime": 60
+      },
+      "holidays": ["Saturday", "Sunday", "Friday"],
+      "leavePolicy": {
+        "paidLeavePerYear": 25,
+        "sickLeavePerYear": 10
+      }
+    }
+  }
+  ```
+
 ### 認証API
 
 #### ログイン
