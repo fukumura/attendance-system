@@ -41,7 +41,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       companyApi.getCompanies()
         .then(response => {
           if (response.status === 'success') {
-            setCompanies(response.data.data);
+            setCompanies(response.data);
           }
         })
         .catch(error => {

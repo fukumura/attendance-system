@@ -49,10 +49,10 @@ const CompanyManagementPage = () => {
     try {
       const response = await companyApi.getCompanies({ page, limit });
       if (response.status === 'success') {
-        setCompanies(response.data.data);
-        setCurrentPage(response.data.pagination.page);
-        setTotalPages(response.data.pagination.totalPages);
-        setTotalItems(response.data.pagination.total);
+        setCompanies(response.data);
+        setCurrentPage(response.pagination.page);
+        setTotalPages(response.pagination.totalPages);
+        setTotalItems(response.pagination.total);
       }
     } catch (error: any) {
       setError(error.response?.data?.message || '企業一覧の取得に失敗しました');
