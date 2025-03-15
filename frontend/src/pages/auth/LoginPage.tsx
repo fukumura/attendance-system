@@ -18,7 +18,7 @@ const LoginPage = () => {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-gray-50 to-gray-100 px-4 py-12">
       <div className="w-full max-w-md text-center mb-8">
-        <h1 className="text-4xl font-bold text-gray-800 mb-2">WorkSync</h1>
+        <h1 className="text-4xl font-bold text-gray-800 mb-2">勤怠管理システム</h1>
         <p className="text-gray-600 text-lg">つながる勤怠、広がる生産性</p>
       </div>
       
@@ -29,7 +29,7 @@ const LoginPage = () => {
       </div>
       
       <div className="mt-8 text-center text-sm text-gray-500">
-        &copy; 2025 WorkSync | プライバシーポリシー
+        &copy; 2025 勤怠管理システム | プライバシーポリシー
       </div>
     </div>
   );

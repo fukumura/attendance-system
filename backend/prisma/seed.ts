@@ -13,7 +13,7 @@ async function main() {
   console.log('Seeding database...');
 
   // Create users
-  const adminPassword = await bcrypt.hash('admin123', 10);
+  const adminPassword = await bcrypt.hash('Admin123', 10);
   const employeePassword = await bcrypt.hash('employee123', 10);
 
   const admin = await prisma.user.create({
