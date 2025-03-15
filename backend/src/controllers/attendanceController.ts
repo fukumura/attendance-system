@@ -178,8 +178,11 @@ export const attendanceController = {
   // 今日の勤怠状態取得
   getToday: async (req: Request, res: Response) => {
     try {
+      console.log('getToday: Start');
       // ユーザーIDの取得
       const userId = req.user?.id;
+      
+      console.log(`getToday: User ID: ${userId}`);
       
       if (!userId) {
         return res.status(401).json({
@@ -193,33 +196,59 @@ export const attendanceController = {
       const startOfDay = getStartOfDay(today);
       const endOfDay = getEndOfDay(today);
       
-      // 今日の勤怠記録を取得
-      const attendanceRecord = await prisma.attendanceRecord.findFirst({
-        where: {
-          userId,
-          date: {
-            gte: startOfDay,
-            lte: endOfDay,
+      console.log(`getToday: Date range - ${startOfDay.toISOString()} to ${endOfDay.toISOString()}`);
+      
+      try {
+        console.log('getToday: Fetching attendance record...');
+        // 今日の勤怠記録を取得
+        const attendanceRecord = await prisma.attendanceRecord.findFirst({
+          where: {
+            userId,
+            date: {
+              gte: startOfDay,
+              lte: endOfDay,
+            },
           },
-        },
-      });
-      
-      // 勤怠状態の判定
-      const status = {
-        isClockedIn: !!attendanceRecord,
-        isClockedOut: !!(attendanceRecord?.clockOutTime),
-        record: attendanceRecord || null,
-      };
-      
-      return res.status(200).json({
-        status: 'success',
-        data: status,
-      });
+        });
+        
+        console.log(`getToday: Attendance record found: ${!!attendanceRecord}`);
+        if (attendanceRecord) {
+          console.log(`getToday: Record details - clockInTime: ${attendanceRecord.clockInTime}, clockOutTime: ${attendanceRecord.clockOutTime || 'null'}`);
+        }
+        
+        // 勤怠状態の判定
+        const status = {
+          isClockedIn: !!attendanceRecord,
+          isClockedOut: !!(attendanceRecord?.clockOutTime),
+          record: attendanceRecord || null,
+        };
+        
+        console.log(`getToday: Status - isClockedIn: ${status.isClockedIn}, isClockedOut: ${status.isClockedOut}`);
+        
+        return res.status(200).json({
+          status: 'success',
+          data: status,
+        });
+      } catch (dbError) {
+        console.error('getToday: Database error:', dbError);
+        if (dbError instanceof Error) {
+          console.error('Error name:', dbError.name);
+          console.error('Error message:', dbError.message);
+          console.error('Error stack:', dbError.stack);
+        }
+        throw new Error(`Database error: ${dbError instanceof Error ? dbError.message : String(dbError)}`);
+      }
     } catch (error) {
       console.error('Get today status error:', error);
+      if (error instanceof Error) {
+        console.error('Error name:', error.name);
+        console.error('Error message:', error.message);
+        console.error('Error stack:', error.stack);
+      }
       return res.status(500).json({
         status: 'error',
         message: '勤怠状態の取得中にエラーが発生しました',
+        details: error instanceof Error ? error.message : String(error)
       });
     }
   },

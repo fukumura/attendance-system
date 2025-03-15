@@ -21,12 +21,26 @@ const userUpdateSchema = z.object({
 export const adminController = {
   // ユーザー一覧取得
   getUsers: async (req: Request, res: Response) => {
+    console.log('getUsers: Start');
     try {
       // ページネーションパラメータ
       const page = Number(req.query.page) || 1;
       const limit = Number(req.query.limit) || 10;
       const skip = (page - 1) * limit;
       
+      console.log(`getUsers: Pagination params - page: ${page}, limit: ${limit}, skip: ${skip}`);
+      
+      // データベース接続状態の確認
+      try {
+        console.log('getUsers: Testing database connection...');
+        await prisma.$queryRaw`SELECT 1`;
+        console.log('getUsers: Database connection is working');
+      } catch (dbError) {
+        console.error('getUsers: Database connection test failed:', dbError);
+        throw new Error(`Database connection error: ${dbError instanceof Error ? dbError.message : String(dbError)}`);
+      }
+      
+      console.log('getUsers: Fetching users from database...');
       // ユーザー一覧の取得
       const users = await prisma.user.findMany({
         select: {
@@ -44,9 +58,14 @@ export const adminController = {
         },
       });
       
-      // 総ユーザー数の取得
-      const total = await prisma.user.count();
+      console.log(`getUsers: Found ${users.length} users`);
       
+      // 総ユーザー数の取得
+      console.log('getUsers: Counting total users...');
+      const total = await prisma.user.count();
+      console.log(`getUsers: Total users: ${total}`);
+      
+      console.log('getUsers: Sending response');
       return res.status(200).json({
         status: 'success',
         data: users,
@@ -58,10 +77,18 @@ export const adminController = {
         },
       });
     } catch (error) {
-      console.error('Get users error:', error);
+      console.error('getUsers error:', error);
+      // エラーの詳細情報を出力
+      if (error instanceof Error) {
+        console.error('Error name:', error.name);
+        console.error('Error message:', error.message);
+        console.error('Error stack:', error.stack);
+      }
+      
       return res.status(500).json({
         status: 'error',
         message: 'ユーザー一覧の取得中にエラーが発生しました',
+        details: error instanceof Error ? error.message : String(error)
       });
     }
   },

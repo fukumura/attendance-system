@@ -19,6 +19,7 @@ export interface AdminUser extends User {
 
 // ユーザー管理レスポンスの型定義
 export interface UsersResponse {
+  status: string;
   data: AdminUser[];
   pagination: {
     page: number;
