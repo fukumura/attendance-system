@@ -1,5 +1,5 @@
 import { leaveController } from '../../src/controllers/leaveController';
-import { mockRequest, mockResponse, prismaMock } from '../utils/testUtils';
+import { mockRequest, mockResponse, mockAdminRequest, prismaMock } from '../utils/testUtils';
 
 describe('Leave Controller', () => {
   beforeEach(() => {
@@ -710,17 +710,13 @@ describe('Leave Controller', () => {
   describe('updateStatus', () => {
     it('should update leave request status successfully as admin', async () => {
       // Arrange
-      const req = mockRequest({
+      const req = mockAdminRequest({
         params: {
           id: 'leave-request-id-1',
         },
         body: {
           status: 'APPROVED',
           comment: 'Approved by admin',
-        },
-        user: {
-          id: 'admin-id',
-          role: 'ADMIN',
         },
       });
 
@@ -806,16 +802,12 @@ describe('Leave Controller', () => {
 
     it('should return 404 if leave request not found', async () => {
       // Arrange
-      const req = mockRequest({
+      const req = mockAdminRequest({
         params: {
           id: 'non-existent-id',
         },
         body: {
           status: 'APPROVED',
-        },
-        user: {
-          id: 'admin-id',
-          role: 'ADMIN',
         },
       });
 
@@ -837,16 +829,12 @@ describe('Leave Controller', () => {
 
     it('should return 400 if trying to update an already processed leave request', async () => {
       // Arrange
-      const req = mockRequest({
+      const req = mockAdminRequest({
         params: {
           id: 'leave-request-id-1',
         },
         body: {
           status: 'APPROVED',
-        },
-        user: {
-          id: 'admin-id',
-          role: 'ADMIN',
         },
       });
 
