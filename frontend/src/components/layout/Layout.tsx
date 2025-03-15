@@ -87,10 +87,29 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               </nav>
             </div>
             <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <span className="text-sm text-gray-700 mr-4">
+              <div className="flex-shrink-0 flex items-center">
+                <Link
+                  to="/profile"
+                  className={`text-sm font-medium mr-4 flex items-center ${
+                    isActive('/profile')
+                      ? 'text-blue-600'
+                      : 'text-gray-700 hover:text-blue-600'
+                  }`}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5 mr-1"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
                   {user?.name || 'ユーザー'}さん
-                </span>
+                </Link>
                 <button
                   onClick={handleLogout}
                   className="px-3 py-1 text-sm text-red-600 border border-red-600 rounded hover:bg-red-50"

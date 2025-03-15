@@ -5,6 +5,16 @@ import jwt from 'jsonwebtoken';
 import { z } from 'zod';
 
 // 入力バリデーションスキーマ
+const profileUpdateSchema = z.object({
+  name: z.string().min(1, '名前は必須です'),
+  email: z.string().email('有効なメールアドレスを入力してください'),
+});
+
+const passwordChangeSchema = z.object({
+  currentPassword: z.string().min(1, '現在のパスワードは必須です'),
+  newPassword: z.string().min(6, '新しいパスワードは6文字以上である必要があります'),
+});
+
 const registerSchema = z.object({
   email: z.string().email('有効なメールアドレスを入力してください'),
   password: z.string().min(6, 'パスワードは6文字以上である必要があります'),
@@ -23,6 +33,143 @@ const generateToken = (userId: string): string => {
 };
 
 export const authController = {
+  // プロフィール更新
+  updateProfile: async (req: Request, res: Response) => {
+    try {
+      // リクエストからユーザーIDを取得（認証ミドルウェアで設定）
+      const userId = req.user?.id;
+      
+      if (!userId) {
+        return res.status(401).json({
+          status: 'error',
+          message: '認証が必要です',
+        });
+      }
+      
+      // リクエストボディのバリデーション
+      const validatedData = profileUpdateSchema.parse(req.body);
+      
+      // メールアドレスの重複チェック（自分以外）
+      if (validatedData.email) {
+        const existingUser = await prisma.user.findFirst({
+          where: {
+            email: validatedData.email,
+            id: { not: userId },
+          },
+        });
+        
+        if (existingUser) {
+          return res.status(400).json({
+            status: 'error',
+            message: 'このメールアドレスは既に使用されています',
+          });
+        }
+      }
+      
+      // ユーザー情報の更新
+      const updatedUser = await prisma.user.update({
+        where: { id: userId },
+        data: {
+          name: validatedData.name,
+          email: validatedData.email,
+        },
+      });
+      
+      // パスワードを除外したユーザー情報を返却
+      const { password, ...userWithoutPassword } = updatedUser;
+      
+      return res.status(200).json({
+        status: 'success',
+        data: userWithoutPassword,
+      });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({
+          status: 'error',
+          message: error.errors[0].message,
+        });
+      }
+      
+      console.error('Update profile error:', error);
+      return res.status(500).json({
+        status: 'error',
+        message: 'プロフィール更新中にエラーが発生しました',
+      });
+    }
+  },
+  
+  // パスワード変更
+  changePassword: async (req: Request, res: Response) => {
+    try {
+      // リクエストからユーザーIDを取得（認証ミドルウェアで設定）
+      const userId = req.user?.id;
+      
+      if (!userId) {
+        return res.status(401).json({
+          status: 'error',
+          message: '認証が必要です',
+        });
+      }
+      
+      // リクエストボディのバリデーション
+      const validatedData = passwordChangeSchema.parse(req.body);
+      
+      // ユーザー情報の取得
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+      });
+      
+      if (!user) {
+        return res.status(404).json({
+          status: 'error',
+          message: 'ユーザーが見つかりません',
+        });
+      }
+      
+      // 現在のパスワードの検証
+      const isPasswordValid = await bcrypt.compare(
+        validatedData.currentPassword,
+        user.password
+      );
+      
+      if (!isPasswordValid) {
+        return res.status(400).json({
+          status: 'error',
+          message: '現在のパスワードが正しくありません',
+        });
+      }
+      
+      // 新しいパスワードのハッシュ化
+      const hashedPassword = await bcrypt.hash(validatedData.newPassword, 10);
+      
+      // パスワードの更新
+      await prisma.user.update({
+        where: { id: userId },
+        data: {
+          password: hashedPassword,
+        },
+      });
+      
+      return res.status(200).json({
+        status: 'success',
+        message: 'パスワードが正常に変更されました',
+      });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({
+          status: 'error',
+          message: error.errors[0].message,
+        });
+      }
+      
+      console.error('Change password error:', error);
+      return res.status(500).json({
+        status: 'error',
+        message: 'パスワード変更中にエラーが発生しました',
+      });
+    }
+  },
+  
   // 初期セットアップ（最初の管理者ユーザー作成）
   setupAdmin: async (req: Request, res: Response) => {
     try {

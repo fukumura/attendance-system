@@ -4,6 +4,7 @@ import { DashboardPage } from './pages/dashboard';
 import { AttendancePage } from './pages/attendance';
 import { LeavePage } from './pages/leave';
 import { ReportPage } from './pages/report';
+import { ProfilePage } from './pages/profile';
 import { AdminDashboardPage, UserManagementPage } from './pages/admin';
 import ProtectedRoute from './components/auth/Protectedroute';
 import AdminProtectedRoute from './components/auth/AdminProtectedRoute';
@@ -45,6 +46,13 @@ function App() {
           <ProtectedRoute>
             <Layout>
               <ReportPage />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        <Route path="/profile" element={
+          <ProtectedRoute>
+            <Layout>
+              <ProfilePage />
             </Layout>
           </ProtectedRoute>
         } />
