@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { LoginPage } from './pages/auth';
+import { LoginPage, SetupPage } from './pages/auth';
 import { DashboardPage } from './pages/dashboard';
 import { AttendancePage } from './pages/attendance';
 import { LeavePage } from './pages/leave';
@@ -17,6 +17,7 @@ function App() {
         {/* 認証が不要なルート */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<Navigate to="/login" replace />} />
+        <Route path="/setup" element={<SetupPage />} />
         
         {/* 認証が必要なルート */}
         <Route path="/dashboard" element={

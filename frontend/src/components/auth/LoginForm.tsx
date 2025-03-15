@@ -185,6 +185,13 @@ const LoginForm = () => {
         <p className="text-sm text-gray-600">
           アカウントの作成は管理者にお問い合わせください
         </p>
+        <p className="text-sm text-gray-600 mt-2">
+          管理者アカウントがない場合は{' '}
+          <Link to="/setup" className="text-blue-600 hover:text-blue-800 font-medium">
+            初期セットアップ
+          </Link>
+          {' '}を行ってください
+        </p>
       </div>
     </div>
   );
