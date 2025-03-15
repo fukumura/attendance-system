@@ -4,6 +4,17 @@ import { ApiResponse } from '../store/taskStore';
 
 // 企業レスポンスの型定義
 export interface CompaniesResponse {
+  data: Company[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+// API共通レスポンス型
+export interface ApiCompanyResponse {
   status: string;
   data: Company[];
   pagination: {
@@ -17,7 +28,7 @@ export interface CompaniesResponse {
 // 企業API
 export const companyApi = {
   // 企業一覧取得（スーパー管理者のみ）
-  getCompanies: async (params?: { page?: number; limit?: number }): Promise<ApiResponse<CompaniesResponse>> => {
+  getCompanies: async (params?: { page?: number; limit?: number }): Promise<ApiCompanyResponse> => {
     const response = await api.get('/api/companies', { params });
     return response.data;
   },
