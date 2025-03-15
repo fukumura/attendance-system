@@ -36,25 +36,25 @@ const AttendanceStatusCard: React.FC<AttendanceStatusCardProps> = ({ onClockIn, 
 
   if (isLoading) {
     return (
-      <div className="bg-white rounded-lg shadow p-6 animate-pulse">
-        <div className="h-6 bg-gray-200 rounded w-3/4 mb-4"></div>
+      <div className="bg-white rounded-lg shadow p-4 sm:p-6 animate-pulse h-full">
+        <div className="h-5 sm:h-6 bg-gray-200 rounded w-3/4 mb-3 sm:mb-4"></div>
         <div className="h-4 bg-gray-200 rounded w-1/2 mb-2"></div>
-        <div className="h-4 bg-gray-200 rounded w-1/2 mb-4"></div>
-        <div className="h-10 bg-gray-200 rounded w-full"></div>
+        <div className="h-4 bg-gray-200 rounded w-1/2 mb-3 sm:mb-4"></div>
+        <div className="h-9 sm:h-10 bg-gray-200 rounded w-full"></div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="bg-white rounded-lg shadow p-6">
-        <div className="text-red-500 mb-4">
-          <p>勤怠状態の取得中にエラーが発生しました</p>
-          <p className="text-sm">{error}</p>
+      <div className="bg-white rounded-lg shadow p-4 sm:p-6 h-full">
+        <div className="text-red-500 mb-3 sm:mb-4">
+          <p className="text-sm sm:text-base">勤怠状態の取得中にエラーが発生しました</p>
+          <p className="text-xs sm:text-sm mt-1">{error}</p>
         </div>
         <button
           onClick={() => fetchTodayStatus()}
-          className="w-full py-2 px-4 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+          className="w-full py-2 px-4 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
         >
           再読み込み
         </button>
@@ -63,30 +63,30 @@ const AttendanceStatusCard: React.FC<AttendanceStatusCardProps> = ({ onClockIn, 
   }
 
   return (
-    <div className="bg-white rounded-lg shadow p-6">
-      <h2 className="text-xl font-semibold mb-4">今日の勤怠状態</h2>
+    <div className="bg-white rounded-lg shadow p-4 sm:p-6 h-full flex flex-col">
+      <h2 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4 text-gray-900">今日の勤怠状態</h2>
       
-      <div className="mb-4">
-        <div className="flex justify-between mb-2">
-          <span className="text-gray-600">出勤時間:</span>
-          <span className="font-medium">
+      <div className="mb-4 flex-grow">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-3 pb-2 border-b border-gray-100">
+          <span className="text-sm sm:text-base text-gray-600 mb-1 sm:mb-0">出勤時間:</span>
+          <span className="text-base sm:text-lg font-medium text-gray-900">
             {todayStatus?.isClockedIn 
               ? formatTime(todayStatus.record?.clockInTime) 
               : '--:--'}
           </span>
         </div>
-        <div className="flex justify-between mb-2">
-          <span className="text-gray-600">退勤時間:</span>
-          <span className="font-medium">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-3 pb-2 border-b border-gray-100">
+          <span className="text-sm sm:text-base text-gray-600 mb-1 sm:mb-0">退勤時間:</span>
+          <span className="text-base sm:text-lg font-medium text-gray-900">
             {todayStatus?.isClockedOut 
               ? formatTime(todayStatus.record?.clockOutTime) 
               : '--:--'}
           </span>
         </div>
         {todayStatus?.isClockedOut && (
-          <div className="flex justify-between mb-2">
-            <span className="text-gray-600">勤務時間:</span>
-            <span className="font-medium">{calculateWorkingHours()}</span>
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-3 pb-2 border-b border-gray-100">
+            <span className="text-sm sm:text-base text-gray-600 mb-1 sm:mb-0">勤務時間:</span>
+            <span className="text-base sm:text-lg font-medium text-gray-900">{calculateWorkingHours()}</span>
           </div>
         )}
       </div>
@@ -94,31 +94,37 @@ const AttendanceStatusCard: React.FC<AttendanceStatusCardProps> = ({ onClockIn, 
       {!todayStatus?.isClockedIn ? (
         <button
           onClick={onClockIn}
-          className="w-full py-2 px-4 bg-green-500 text-white rounded hover:bg-green-600 transition-colors"
+          className="w-full py-2 sm:py-3 px-4 bg-green-500 text-white rounded hover:bg-green-600 transition-colors text-sm sm:text-base font-medium focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50"
         >
           出勤打刻
         </button>
       ) : !todayStatus?.isClockedOut ? (
         <button
           onClick={onClockOut}
-          className="w-full py-2 px-4 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
+          className="w-full py-2 sm:py-3 px-4 bg-red-500 text-white rounded hover:bg-red-600 transition-colors text-sm sm:text-base font-medium focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50"
         >
           退勤打刻
         </button>
       ) : (
-        <div className="w-full py-2 px-4 bg-gray-100 text-gray-600 rounded text-center">
+        <div className="w-full py-2 sm:py-3 px-4 bg-gray-100 text-gray-600 rounded text-center text-sm sm:text-base">
           本日の勤務は終了しました
         </div>
       )}
       
-      {todayStatus?.record?.location && (
-        <div className="mt-4 text-sm text-gray-500">
-          勤務場所: {todayStatus.record.location}
-        </div>
-      )}
-      {todayStatus?.record?.notes && (
-        <div className="mt-2 text-sm text-gray-500">
-          備考: {todayStatus.record.notes}
+      {(todayStatus?.record?.location || todayStatus?.record?.notes) && (
+        <div className="mt-3 sm:mt-4 p-2 sm:p-3 bg-gray-50 rounded-md">
+          {todayStatus?.record?.location && (
+            <div className="flex items-start">
+              <span className="text-xs sm:text-sm text-gray-500 font-medium mr-2">勤務場所:</span>
+              <span className="text-xs sm:text-sm text-gray-700">{todayStatus.record.location}</span>
+            </div>
+          )}
+          {todayStatus?.record?.notes && (
+            <div className="flex items-start mt-1">
+              <span className="text-xs sm:text-sm text-gray-500 font-medium mr-2">備考:</span>
+              <span className="text-xs sm:text-sm text-gray-700">{todayStatus.record.notes}</span>
+            </div>
+          )}
         </div>
       )}
     </div>
