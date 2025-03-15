@@ -23,6 +23,78 @@ const generateToken = (userId: string): string => {
 };
 
 export const authController = {
+  // 初期セットアップ（最初の管理者ユーザー作成）
+  setupAdmin: async (req: Request, res: Response) => {
+    try {
+      // リクエストボディのバリデーション
+      const validatedData = registerSchema.parse(req.body);
+      
+      // 管理者ユーザーが既に存在するか確認
+      const adminExists = await prisma.user.findFirst({
+        where: { role: 'ADMIN' },
+      });
+      
+      if (adminExists) {
+        return res.status(403).json({
+          status: 'error',
+          message: '管理者ユーザーは既に存在します。このエンドポイントは使用できません。',
+        });
+      }
+      
+      // メールアドレスの重複チェック
+      const existingUser = await prisma.user.findUnique({
+        where: { email: validatedData.email },
+      });
+      
+      if (existingUser) {
+        return res.status(400).json({
+          status: 'error',
+          message: 'このメールアドレスは既に登録されています',
+        });
+      }
+      
+      // パスワードのハッシュ化
+      const hashedPassword = await bcrypt.hash(validatedData.password, 10);
+      
+      // 管理者ユーザーの作成
+      const newAdmin = await prisma.user.create({
+        data: {
+          email: validatedData.email,
+          password: hashedPassword,
+          name: validatedData.name,
+          role: 'ADMIN', // 管理者ロールを設定
+        },
+      });
+      
+      // パスワードを除外したユーザー情報を返却
+      const { password, ...userWithoutPassword } = newAdmin;
+      
+      // JWTトークンの生成
+      const token = generateToken(newAdmin.id);
+      
+      return res.status(201).json({
+        status: 'success',
+        data: {
+          user: userWithoutPassword,
+          token,
+        },
+      });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({
+          status: 'error',
+          message: error.errors[0].message,
+        });
+      }
+      
+      console.error('Setup admin error:', error);
+      return res.status(500).json({
+        status: 'error',
+        message: '管理者ユーザー作成中にエラーが発生しました',
+      });
+    }
+  },
+  
   // ユーザー登録（管理者のみ実行可能）
   register: async (req: Request, res: Response) => {
     try {

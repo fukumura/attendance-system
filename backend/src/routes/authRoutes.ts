@@ -4,6 +4,9 @@ import { authenticate, requireAdmin } from '../middlewares/authMiddleware';
 
 const router = express.Router();
 
+// 初期セットアップ（最初の管理者ユーザー作成）
+router.post('/setup', authController.setupAdmin);
+
 // ユーザー登録（管理者のみ実行可能）
 router.post('/register', authenticate, requireAdmin, authController.register);
 
