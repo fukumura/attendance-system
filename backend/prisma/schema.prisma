@@ -10,16 +10,32 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Company {
+  id              String            @id @default(uuid())
+  publicId        String            @unique // ハッシュ化された公開ID
+  name            String
+  logoUrl         String?
+  settings        Json?             // 企業固有の設定（JSON形式）
+  users           User[]
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+}
+
 model User {
   id              String            @id @default(uuid())
-  email           String            @unique
+  email           String            
   password        String
   name            String
   role            Role              @default(EMPLOYEE)
+  company         Company?          @relation(fields: [companyId], references: [id])
+  companyId       String?           // SUPER_ADMINの場合はnull可能
   attendanceRecords AttendanceRecord[]
   leaveRequests   LeaveRequest[]
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
+
+  @@unique([email, companyId])  // メールアドレスは企業内でユニーク
+  @@index([companyId])
 }
 
 model AttendanceRecord {
@@ -58,6 +74,7 @@ model LeaveRequest {
 enum Role {
   EMPLOYEE
   ADMIN
+  SUPER_ADMIN
 }
 
 enum LeaveType {

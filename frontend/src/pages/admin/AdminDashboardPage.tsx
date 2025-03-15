@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 
 const AdminDashboardPage = () => {
-  const { user } = useAuthStore();
+  const { user, isSuperAdmin } = useAuthStore();
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -26,10 +26,30 @@ const AdminDashboardPage = () => {
             <h3 className="text-lg font-medium mb-2 text-green-700">レポート</h3>
             <p className="text-gray-600">勤怠や休暇のレポートを確認します</p>
           </Link>
-          <div className="bg-purple-50 rounded-lg p-6 hover:bg-purple-100 transition-colors">
-            <h3 className="text-lg font-medium mb-2 text-purple-700">システム設定</h3>
-            <p className="text-gray-600">システム全体の設定を管理します（準備中）</p>
-          </div>
+          <Link
+            to="/admin/companies"
+            className="bg-indigo-50 rounded-lg p-6 hover:bg-indigo-100 transition-colors"
+          >
+            <h3 className="text-lg font-medium mb-2 text-indigo-700">企業一覧</h3>
+            <p className="text-gray-600">登録されている企業の一覧を表示します</p>
+          </Link>
+          
+          {isSuperAdmin() && (
+            <Link
+              to="/admin/super-admins"
+              className="bg-purple-50 rounded-lg p-6 hover:bg-purple-100 transition-colors"
+            >
+              <h3 className="text-lg font-medium mb-2 text-purple-700">スーパー管理者管理</h3>
+              <p className="text-gray-600">スーパー管理者の追加を行います</p>
+            </Link>
+          )}
+          
+          {!isSuperAdmin() && (
+            <div className="bg-purple-50 rounded-lg p-6 hover:bg-purple-100 transition-colors">
+              <h3 className="text-lg font-medium mb-2 text-purple-700">システム設定</h3>
+              <p className="text-gray-600">システム全体の設定を管理します（準備中）</p>
+            </div>
+          )}
         </div>
       </div>
       

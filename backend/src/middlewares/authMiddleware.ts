@@ -5,6 +5,8 @@ import { prisma } from '../app';
 // JWTペイロードの型定義
 interface JwtPayload {
   userId: string;
+  companyId?: string | null;
+  role?: string;
 }
 
 // Requestインターフェースの拡張
@@ -16,6 +18,7 @@ declare global {
         email: string;
         name: string;
         role: string;
+        companyId?: string | null;
       };
     }
   }
@@ -98,10 +101,33 @@ export const requireAdmin = (
     });
   }
   
-  if (req.user.role !== 'ADMIN') {
+  if (req.user.role !== 'ADMIN' && req.user.role !== 'SUPER_ADMIN') {
     return res.status(403).json({
       status: 'error',
       message: '管理者権限が必要です',
+    });
+  }
+  
+  next();
+};
+
+// スーパー管理者権限チェックミドルウェア
+export const requireSuperAdmin = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  if (!req.user) {
+    return res.status(401).json({
+      status: 'error',
+      message: '認証が必要です',
+    });
+  }
+  
+  if (req.user.role !== 'SUPER_ADMIN') {
+    return res.status(403).json({
+      status: 'error',
+      message: 'スーパー管理者権限が必要です',
     });
   }
   

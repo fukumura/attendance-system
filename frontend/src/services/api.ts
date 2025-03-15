@@ -51,13 +51,21 @@ const api = axios.create({
   },
 });
 
-// リクエストインターセプター - 認証トークンの追加
+// リクエストインターセプター - 認証トークンと企業IDの追加
 api.interceptors.request.use(
   (config) => {
-    const token = useAuthStore.getState().token;
+    const { token, company, user } = useAuthStore.getState();
+    
+    // 認証トークンの追加
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`;
     }
+    
+    // スーパー管理者が企業を選択している場合、または通常ユーザーの場合は企業IDを追加
+    if (company?.publicId) {
+      config.headers['X-Company-ID'] = company.publicId;
+    }
+    
     return config;
   },
   (error) => {
@@ -267,13 +275,13 @@ export const adminApi = {
   },
   
   // ユーザー作成
-  createUser: async (data: { email: string; password: string; name: string; role?: 'ADMIN' | 'EMPLOYEE' }): Promise<ApiResponse<User>> => {
+  createUser: async (data: { email: string; password: string; name: string; role?: 'ADMIN' | 'EMPLOYEE' | 'SUPER_ADMIN'; companyId?: string }): Promise<ApiResponse<User>> => {
     const response = await api.post('/api/admin/users', data);
     return response.data;
   },
   
   // ユーザー更新
-  updateUser: async (id: string, data: { email?: string; password?: string; name?: string; role?: 'ADMIN' | 'EMPLOYEE' }): Promise<ApiResponse<User>> => {
+  updateUser: async (id: string, data: { email?: string; password?: string; name?: string; role?: 'ADMIN' | 'EMPLOYEE' | 'SUPER_ADMIN'; companyId?: string }): Promise<ApiResponse<User>> => {
     const response = await api.put(`/api/admin/users/${id}`, data);
     return response.data;
   },
@@ -281,6 +289,12 @@ export const adminApi = {
   // ユーザー削除
   deleteUser: async (id: string): Promise<ApiResponse<{ success: boolean }>> => {
     const response = await api.delete(`/api/admin/users/${id}`);
+    return response.data;
+  },
+  
+  // スーパー管理者作成（スーパー管理者のみ）
+  createSuperAdmin: async (data: { email: string; password: string; name: string }): Promise<ApiResponse<User>> => {
+    const response = await api.post('/api/admin/super-admins', data);
     return response.data;
   },
 };

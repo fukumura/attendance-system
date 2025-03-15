@@ -8,17 +8,88 @@ const userSchema = z.object({
   email: z.string().email('有効なメールアドレスを入力してください'),
   password: z.string().min(6, 'パスワードは6文字以上である必要があります'),
   name: z.string().min(1, '名前は必須です'),
-  role: z.enum(['ADMIN', 'EMPLOYEE']).default('EMPLOYEE'),
+  role: z.enum(['ADMIN', 'EMPLOYEE', 'SUPER_ADMIN']).default('EMPLOYEE'),
+  companyId: z.string().optional(),
 });
 
 const userUpdateSchema = z.object({
   email: z.string().email('有効なメールアドレスを入力してください').optional(),
   password: z.string().min(6, 'パスワードは6文字以上である必要があります').optional(),
   name: z.string().min(1, '名前は必須です').optional(),
-  role: z.enum(['ADMIN', 'EMPLOYEE']).optional(),
+  role: z.enum(['ADMIN', 'EMPLOYEE', 'SUPER_ADMIN']).optional(),
+  companyId: z.string().optional(),
+});
+
+// スーパー管理者作成用スキーマ
+const superAdminSchema = z.object({
+  email: z.string().email('有効なメールアドレスを入力してください'),
+  password: z.string().min(6, 'パスワードは6文字以上である必要があります'),
+  name: z.string().min(1, '名前は必須です'),
 });
 
 export const adminController = {
+  // スーパー管理者作成
+  createSuperAdmin: async (req: Request, res: Response) => {
+    try {
+      // リクエスト元がスーパー管理者かチェック
+      if (req.user?.role !== 'SUPER_ADMIN') {
+        return res.status(403).json({
+          status: 'error',
+          message: 'スーパー管理者のみがこの操作を実行できます'
+        });
+      }
+
+      // リクエストボディのバリデーション
+      const validatedData = superAdminSchema.parse(req.body);
+      
+      // メールアドレスの重複チェック
+      const existingUser = await prisma.user.findFirst({
+        where: { email: validatedData.email },
+      });
+      
+      if (existingUser) {
+        return res.status(400).json({
+          status: 'error',
+          message: 'このメールアドレスは既に登録されています',
+        });
+      }
+      
+      // パスワードのハッシュ化
+      const hashedPassword = await bcrypt.hash(validatedData.password, 10);
+      
+      // スーパー管理者の作成（企業IDはnull）
+      const newSuperAdmin = await prisma.user.create({
+        data: {
+          email: validatedData.email,
+          password: hashedPassword,
+          name: validatedData.name,
+          role: 'SUPER_ADMIN' as any,
+          // companyIdはnullのまま
+        },
+      });
+      
+      // パスワードを除外したユーザー情報を返却
+      const { password, ...userWithoutPassword } = newSuperAdmin;
+      
+      return res.status(201).json({
+        status: 'success',
+        data: userWithoutPassword,
+      });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({
+          status: 'error',
+          message: error.errors[0].message,
+        });
+      }
+      
+      console.error('Create super admin error:', error);
+      return res.status(500).json({
+        status: 'error',
+        message: 'スーパー管理者作成中にエラーが発生しました',
+      });
+    }
+  },
   // ユーザー一覧取得
   getUsers: async (req: Request, res: Response) => {
     console.log('getUsers: Start');
@@ -138,7 +209,7 @@ export const adminController = {
       const validatedData = userSchema.parse(req.body);
       
       // メールアドレスの重複チェック
-      const existingUser = await prisma.user.findUnique({
+      const existingUser = await prisma.user.findFirst({
         where: { email: validatedData.email },
       });
       
@@ -158,7 +229,7 @@ export const adminController = {
           email: validatedData.email,
           password: hashedPassword,
           name: validatedData.name,
-          role: validatedData.role,
+          role: validatedData.role as any,
         },
       });
       
