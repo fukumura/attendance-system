@@ -26,7 +26,12 @@
 
 - **ユーザー認証 | User Authentication**
   - サインアップ/ログイン | Sign up/Login
-  - ロールベースのアクセス制御（一般従業員/管理者） | Role-based access control (Employee/Admin)
+  - ロールベースのアクセス制御（一般従業員/管理者/スーパー管理者） | Role-based access control (Employee/Admin/Super Admin)
+
+- **企業管理 | Company Management**
+  - 企業の作成・編集・削除（スーパー管理者のみ） | Create/Edit/Delete companies (Super Admin only)
+  - 企業固有の設定管理 | Company-specific settings management
+  - 複数企業の管理（スーパー管理者） | Multi-company management (Super Admin)
 
 - **勤怠記録 | Attendance Records**
   - 出勤/退勤の打刻 | Clock in/out

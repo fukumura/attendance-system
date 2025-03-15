@@ -9,15 +9,31 @@
 
 ## テーブル設計
 
+### companies（企業情報）
+
+| カラム名      | 型            | 制約                  | 説明                |
+|--------------|---------------|----------------------|---------------------|
+| id           | UUID          | PK, NOT NULL         | プライマリーキー     |
+| publicId     | VARCHAR(20)   | NOT NULL, UNIQUE     | 公開ID（ハッシュ化） |
+| name         | VARCHAR(100)  | NOT NULL             | 企業名              |
+| logoUrl      | VARCHAR(255)  | NULL                 | 企業ロゴURL         |
+| settings     | JSONB         | NULL                 | 企業固有の設定（JSON形式）|
+| createdAt    | TIMESTAMP     | NOT NULL, DEFAULT NOW() | 作成日時          |
+| updatedAt    | TIMESTAMP     | NOT NULL, DEFAULT NOW() | 更新日時          |
+
+**インデックス**:
+- publicId (UNIQUE)
+
 ### users（ユーザー情報）
 
 | カラム名      | 型            | 制約                  | 説明                |
 |--------------|---------------|----------------------|---------------------|
 | id           | UUID          | PK, NOT NULL         | プライマリーキー     |
 | name         | VARCHAR(50)   | NOT NULL             | 氏名                |
-| email        | VARCHAR(100)  | NOT NULL, UNIQUE     | メールアドレス      |
+| email        | VARCHAR(100)  | NOT NULL             | メールアドレス      |
 | password     | VARCHAR(255)  | NOT NULL             | パスワード（ハッシュ）|
-| role         | VARCHAR(20)   | NOT NULL, DEFAULT 'user' | ユーザー権限（admin/user/manager）|
+| role         | VARCHAR(20)   | NOT NULL, DEFAULT 'EMPLOYEE' | ユーザー権限（EMPLOYEE/ADMIN/SUPER_ADMIN）|
+| companyId    | UUID          | FK, NULL             | 所属企業ID（SUPER_ADMINの場合はnull可能）|
 | department_id| UUID          | FK, NULL             | 所属部署ID          |
 | avatar_url   | VARCHAR(255)  | NULL                 | プロフィール画像URL  |
 | employee_id  | VARCHAR(20)   | NULL, UNIQUE         | 社員番号            |
