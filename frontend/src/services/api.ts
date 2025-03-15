@@ -105,6 +105,18 @@ export const authApi = {
     const response = await api.get('/api/auth/me');
     return response.data;
   },
+  
+  // プロフィール更新
+  updateProfile: async (data: { name: string; email: string }): Promise<ApiResponse<User>> => {
+    const response = await api.put('/api/auth/profile', data);
+    return response.data;
+  },
+  
+  // パスワード変更
+  changePassword: async (data: { currentPassword: string; newPassword: string }): Promise<ApiResponse<{ message: string }>> => {
+    const response = await api.put('/api/auth/password', data);
+    return response.data;
+  },
 };
 
 // 勤怠API

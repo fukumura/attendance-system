@@ -16,4 +16,10 @@ router.post('/login', authController.login);
 // 現在のユーザー情報取得
 router.get('/me', authenticate, authController.getCurrentUser);
 
+// プロフィール更新
+router.put('/profile', authenticate, authController.updateProfile);
+
+// パスワード変更
+router.put('/password', authenticate, authController.changePassword);
+
 export default router;

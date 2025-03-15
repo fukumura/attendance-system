@@ -5,8 +5,13 @@ import { useAuthStore } from '../store/authStore';
 
 export const useAuth = () => {
   const navigate = useNavigate();
-  const { login, logout, setIsLoading, setError } = useAuthStore();
+  const { login, logout, setIsLoading, setError: storeSetError, setUser } = useAuthStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // エラーメッセージを設定する関数を公開
+  const setError = (message: string | null) => {
+    storeSetError(message);
+  };
 
   // ユーザー登録（一般ユーザー向け）
   const handleRegister = async (email: string, password: string, name: string, isAdmin = false) => {
@@ -103,11 +108,60 @@ export const useAuth = () => {
     }
   };
 
+  // プロフィール更新
+  const handleProfileUpdate = async (name: string, email: string) => {
+    setIsSubmitting(true);
+    setError(null);
+    
+    try {
+      const response = await authApi.updateProfile({ name, email });
+      if (response.status === 'success') {
+        // ユーザー情報を更新
+        setUser(response.data);
+        return true;
+      }
+      return false;
+    } catch (error: any) {
+      // エラーメッセージの設定
+      const errorMessage =
+        error.response?.data?.message || 'プロフィール更新中にエラーが発生しました';
+      setError(errorMessage);
+      return false;
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // パスワード変更
+  const handlePasswordChange = async (currentPassword: string, newPassword: string) => {
+    setIsSubmitting(true);
+    setError(null);
+    
+    try {
+      const response = await authApi.changePassword({ currentPassword, newPassword });
+      if (response.status === 'success') {
+        return true;
+      }
+      return false;
+    } catch (error: any) {
+      // エラーメッセージの設定
+      const errorMessage =
+        error.response?.data?.message || 'パスワード変更中にエラーが発生しました';
+      setError(errorMessage);
+      return false;
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return {
     isSubmitting,
+    setError,
     handleRegister,
     handleLogin,
     handleLogout,
     fetchCurrentUser,
+    handleProfileUpdate,
+    handlePasswordChange,
   };
 };
