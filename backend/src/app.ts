@@ -42,11 +42,11 @@ export const prisma = new PrismaClient({
 });
 
 // Prismaのイベントリスナーを設定
-prisma.$on('error', (e) => {
+prisma.$on('error', (e: any) => {
   console.error('Prisma error:', e);
 });
 
-prisma.$on('query', (e) => {
+prisma.$on('query', (e: any) => {
   console.log('Prisma query:', e);
 });
 
