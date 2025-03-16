@@ -43,7 +43,9 @@ export interface AttendanceRecordsResponse {
 // API基本設定
 // 開発環境ではプロキシを使用し、本番環境では環境変数を使用
 const isDevelopment = import.meta.env.DEV;
-const API_URL = isDevelopment ? '' : (import.meta.env.VITE_API_URL || 'http://localhost:5000');
+// 開発環境では空文字列を使用（相対パスでリクエストを送信）
+// 本番環境では環境変数またはデフォルト値を使用
+const API_URL = isDevelopment ? '' : (import.meta.env.VITE_API_URL || 'https://attendance-system-production-18e1.up.railway.app');
 
 // APIクライアントの作成
 const api = axios.create({
@@ -53,6 +55,17 @@ const api = axios.create({
   },
   withCredentials: true, // CORSリクエストでクッキーを送信
 });
+
+// デバッグ用：リクエストURLをログに出力
+api.interceptors.request.use(
+  (config) => {
+    console.log(`Request URL: ${config.baseURL}${config.url}`);
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
 
 // リクエストインターセプター - 認証トークンと企業IDの追加
 api.interceptors.request.use(
