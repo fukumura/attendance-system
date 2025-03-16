@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { LoginPage, SetupPage } from './pages/auth';
+import { LoginPage, SetupPage, VerifyEmailPage } from './pages/auth';
 import { DashboardPage } from './pages/dashboard';
 import { AttendancePage } from './pages/attendance';
 import { LeavePage } from './pages/leave';
@@ -18,6 +18,7 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<Navigate to="/login" replace />} />
         <Route path="/setup" element={<SetupPage />} />
+        <Route path="/verify-email" element={<VerifyEmailPage />} />
         
         {/* 認証が必要なルート */}
         <Route path="/dashboard" element={

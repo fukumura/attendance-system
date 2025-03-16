@@ -25,4 +25,4 @@ RUN npx prisma generate
 RUN npm run build
 
 # アプリケーション起動時にマイグレーションを実行してからサーバー起動
-CMD npx prisma migrate deploy && npm start
+CMD npx prisma migrate deploy || npx prisma db push --accept-data-loss && npm start

@@ -1,7 +1,8 @@
-import { useState, FormEvent } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, FormEvent, useEffect } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
-import { useAuthStore } from '../../store/authStore';
+import { useAuthStore, Company } from '../../store/authStore';
+import { companyApi } from '../../services/companyApi';
 
 interface RegisterFormProps {
   onSuccess?: () => void;
@@ -9,13 +10,58 @@ interface RegisterFormProps {
 }
 
 const RegisterForm = ({ onSuccess, isAdminForm = false }: RegisterFormProps) => {
+  const [searchParams] = useSearchParams();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [companyId, setCompanyId] = useState('');
+  const [companies, setCompanies] = useState<Company[]>([]);
+  const [isLoadingCompanies, setIsLoadingCompanies] = useState(false);
+  const currentUser = useAuthStore((state) => state.user);
+  const currentCompany = useAuthStore((state) => state.company);
+  const isSuperAdmin = currentUser?.role === 'SUPER_ADMIN';
+  const isAdmin = currentUser?.role === 'ADMIN';
   const [passwordError, setPasswordError] = useState('');
   const { handleRegister, isSubmitting } = useAuth();
   const error = useAuthStore((state) => state.error);
+  
+  // 企業一覧を取得（スーパー管理者の場合のみ）
+  useEffect(() => {
+    const fetchCompanies = async () => {
+      if (!isSuperAdmin) return;
+      
+      setIsLoadingCompanies(true);
+      try {
+        const response = await companyApi.getCompanies();
+        if (response.status === 'success') {
+          // APIから返されるデータ形式に合わせて変換
+          setCompanies(response.data);
+        }
+      } catch (error) {
+        console.error('企業一覧の取得に失敗しました:', error);
+      } finally {
+        setIsLoadingCompanies(false);
+      }
+    };
+    
+    fetchCompanies();
+  }, [isSuperAdmin]);
+  
+  // 管理者の場合は自分の企業IDを設定
+  useEffect(() => {
+    if (isAdmin && currentCompany) {
+      setCompanyId(currentCompany.publicId);
+    }
+  }, [isAdmin, currentCompany]);
+  
+  // URLパラメータから企業IDを取得
+  useEffect(() => {
+    const companyIdParam = searchParams.get('companyId');
+    if (companyIdParam) {
+      setCompanyId(companyIdParam);
+    }
+  }, [searchParams]);
 
   const validatePassword = () => {
     if (password !== confirmPassword) {
@@ -48,7 +94,7 @@ const RegisterForm = ({ onSuccess, isAdminForm = false }: RegisterFormProps) => 
       return;
     }
     
-    const success = await handleRegister(email, password, name, isAdminForm);
+    const success = await handleRegister(email, password, name, companyId, isAdminForm);
     
     if (success && onSuccess) {
       onSuccess();
@@ -58,6 +104,7 @@ const RegisterForm = ({ onSuccess, isAdminForm = false }: RegisterFormProps) => 
         setEmail('');
         setPassword('');
         setConfirmPassword('');
+        setCompanyId('');
       }
     }
   };
@@ -128,7 +175,7 @@ const RegisterForm = ({ onSuccess, isAdminForm = false }: RegisterFormProps) => 
           </p>
         </div>
 
-        <div className="mb-6">
+        <div className="mb-4">
           <label htmlFor="confirmPassword" className="block text-gray-700 text-sm font-bold mb-2">
             パスワード（確認用）
           </label>
@@ -144,6 +191,51 @@ const RegisterForm = ({ onSuccess, isAdminForm = false }: RegisterFormProps) => 
           {passwordError && (
             <p className="text-red-500 text-xs italic mt-1">{passwordError}</p>
           )}
+        </div>
+
+        {/* 企業選択フィールド - スーパー管理者の場合はプルダウン、管理者の場合は自分の企業を表示 */}
+        <div className="mb-6">
+          <label htmlFor="companyId" className="block text-gray-700 text-sm font-bold mb-2">
+            所属企業
+          </label>
+          {isSuperAdmin ? (
+            // スーパー管理者の場合は企業一覧のプルダウン
+            <div className="relative">
+              <select
+                id="companyId"
+                value={companyId}
+                onChange={(e) => setCompanyId(e.target.value)}
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                disabled={isLoadingCompanies}
+              >
+                <option value="">企業を選択してください</option>
+                {companies.map((company) => (
+                  <option key={company.publicId} value={company.publicId}>
+                    {company.name}
+                  </option>
+                ))}
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                  <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                </svg>
+              </div>
+            </div>
+          ) : isAdmin && currentCompany ? (
+            // 管理者の場合は自分の企業を表示（編集不可）
+            <div className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 bg-gray-100">
+              {currentCompany.name}
+              <input type="hidden" id="companyId" value={companyId} />
+            </div>
+          ) : (
+            // 一般ユーザーまたはログインしていない場合は非表示
+            <div className="text-gray-500 italic">
+              企業情報は管理者によって設定されます
+            </div>
+          )}
+          <p className="text-gray-600 text-xs italic mt-1">
+            {isSuperAdmin ? '所属企業を選択してください' : ''}
+          </p>
         </div>
 
         <div className="flex items-center justify-between">

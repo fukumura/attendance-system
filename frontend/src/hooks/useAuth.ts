@@ -15,7 +15,7 @@ export const useAuth = () => {
   };
 
   // ユーザー登録（一般ユーザー向け）
-  const handleRegister = async (email: string, password: string, name: string, isAdmin = false) => {
+  const handleRegister = async (email: string, password: string, name: string, companyId?: string, isAdmin = false) => {
     setIsSubmitting(true);
     setError(null);
     
@@ -28,6 +28,7 @@ export const useAuth = () => {
           password,
           name,
           role: 'EMPLOYEE', // デフォルトは一般ユーザー
+          companyId: companyId, // 企業ID（オプション）
         });
         
         if (response.status === 'success') {
@@ -35,7 +36,7 @@ export const useAuth = () => {
         }
       } else {
         // 一般ユーザーによる登録（登録ページから）
-        const response = await authApi.register(email, password, name);
+        const response = await authApi.register(email, password, name, companyId);
         
         if (response.status === 'success') {
           // ユーザー情報とトークンを保存
@@ -87,7 +88,25 @@ export const useAuth = () => {
         return true;
       }
     } catch (error: any) {
-      // エラーメッセージの設定
+      // メール認証が必要な場合
+      if (error.response?.data?.needsVerification && error.response?.data?.email) {
+        // エラーメッセージの設定
+        const errorMessage = error.response.data.message || 'メールアドレスが認証されていません。認証メールを確認してください。';
+        setError(errorMessage);
+        
+        // カスタムイベントを発行して、メール認証フォームを表示
+        const customEvent = new CustomEvent('loginError', {
+          detail: {
+            needsVerification: true,
+            email: error.response.data.email
+          }
+        });
+        window.dispatchEvent(customEvent);
+        
+        return false;
+      }
+      
+      // その他のエラー
       const errorMessage =
         error.response?.data?.message || 'ログイン中にエラーが発生しました';
       setError(errorMessage);

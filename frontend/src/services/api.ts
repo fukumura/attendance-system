@@ -90,11 +90,29 @@ api.interceptors.response.use(
 // 認証API
 export const authApi = {
   // ユーザー登録
-  register: async (email: string, password: string, name: string): Promise<ApiResponse<AuthResponse>> => {
+  register: async (email: string, password: string, name: string, companyId?: string): Promise<ApiResponse<AuthResponse>> => {
     const response = await api.post('/api/auth/register', {
       email,
       password,
       name,
+      companyId,
+    });
+    return response.data;
+  },
+  
+  // メールアドレス認証
+  verifyEmail: async (token: string, userId: string): Promise<ApiResponse<AuthResponse>> => {
+    const response = await api.post('/api/auth/verify-email', {
+      token,
+      userId,
+    });
+    return response.data;
+  },
+  
+  // 認証メール再送信
+  resendVerification: async (email: string): Promise<ApiResponse<{ message: string }>> => {
+    const response = await api.post('/api/auth/resend-verification', {
+      email,
     });
     return response.data;
   },
