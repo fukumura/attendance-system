@@ -65,36 +65,29 @@ async function testDatabaseConnection() {
 // アプリケーション起動時にデータベース接続をテスト
 testDatabaseConnection();
 
-// すべてのリクエストに対してCORSヘッダーを追加するカスタムミドルウェア
-app.use((req, res, next) => {
-  // フロントエンドのオリジンを明示的に許可
-  res.header('Access-Control-Allow-Origin', 'https://attendance-system-seven-neon.vercel.app');
-  res.header('Access-Control-Allow-Credentials', 'true');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, X-Company-ID');
-  
-  // プリフライトリクエスト（OPTIONS）の場合は即座に200を返す
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
-  
-  next();
-});
+// 許可するオリジンの設定
+const allowedOrigins = [
+  'https://attendance-system-seven-neon.vercel.app',
+  'https://pocket-kintani.com',
+  'http://localhost:3000', // 開発環境用
+  process.env.FRONTEND_URL // 環境変数から設定されたフロントエンドURL
+].filter(Boolean); // undefinedやnullをフィルタリング
 
-// バックアップとして既存のCORS設定も残しておく
+// CORSミドルウェアの設定
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: function(origin, callback) {
+    // originがnullの場合（例：Postmanなどのツール）や許可されたオリジンの場合は許可
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.log('CORS エラー: ', origin);
+      callback(new Error(`オリジン ${origin} からのアクセスは許可されていません`));
+    }
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Company-ID'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Company-ID', 'X-Requested-With', 'Origin', 'Accept'],
   credentials: true,
-  preflightContinue: false,
-  optionsSuccessStatus: 204
-}));
-
-// プリフライトリクエスト用のグローバルハンドラ
-app.options('*', cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-  credentials: true
+  maxAge: 86400 // プリフライトリクエストの結果をキャッシュする秒数（24時間）
 }));
 
 // Helmet.jsによるセキュリティヘッダー設定（CORS互換性を確保）
