@@ -70,6 +70,7 @@ const allowedOrigins = [
   'https://attendance-system-seven-neon.vercel.app',
   'https://pocket-kintani.com',
   'http://localhost:3000', // 開発環境用
+  'https://localhost:3000', // HTTPS開発環境用
   process.env.FRONTEND_URL // 環境変数から設定されたフロントエンドURL
 ].filter(Boolean); // undefinedやnullをフィルタリング
 
@@ -80,7 +81,7 @@ app.use(cors({
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      console.log('CORS エラー: ', origin);
+      console.log('CORS エラー: ', origin, 'Allowed origins:', allowedOrigins);
       callback(new Error(`オリジン ${origin} からのアクセスは許可されていません`));
     }
   },
@@ -89,6 +90,9 @@ app.use(cors({
   credentials: true,
   maxAge: 86400 // プリフライトリクエストの結果をキャッシュする秒数（24時間）
 }));
+
+// プリフライトリクエスト用の明示的なハンドラ
+app.options('*', cors());
 
 // Helmet.jsによるセキュリティヘッダー設定（CORS互換性を確保）
 app.use(helmet({
