@@ -4,7 +4,7 @@ buildCommand = "cd backend && npm install && npm run build"
 watchPatterns = ["backend/**"]
 
 [deploy]
-startCommand = "cd backend && npm start"
+startCommand = "cd backend && npx prisma migrate deploy && npx prisma generate && npm start"
 restartPolicyType = "ON_FAILURE"
 numReplicas = 1
 
