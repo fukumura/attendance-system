@@ -53,6 +53,24 @@ export const mockAdminRequest = (options: Partial<Request & { user?: any }> = {}
   return req;
 };
 
+// Mock super admin request factory
+export const mockSuperAdminRequest = (options: Partial<Request & { user?: any }> = {}): MockRequest => {
+  const req = mockRequest(options);
+  req.user = {
+    id: 'super-admin-user-id',
+    email: 'superadmin@example.com',
+    name: 'Super Admin User',
+    role: 'SUPER_ADMIN'
+  };
+  
+  // Override with provided options
+  if (options.user) {
+    req.user = { ...req.user, ...options.user };
+  }
+  
+  return req;
+};
+
 // Mock response factory
 export const mockResponse = (): MockResponse => {
   const res = mockDeep<Response>() as MockResponse;
