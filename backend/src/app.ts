@@ -65,26 +65,11 @@ async function testDatabaseConnection() {
 // アプリケーション起動時にデータベース接続をテスト
 testDatabaseConnection();
 
-// 許可するオリジンの設定
-const allowedOrigins = [
-  'https://pocket-kintai.com',
-  'http://localhost:3000', // 開発環境用
-  process.env.FRONTEND_URL // 環境変数から設定されたフロントエンドURL
-].filter(Boolean); // undefinedやnullをフィルタリング
-
-// CORSミドルウェアの設定
+// CORSミドルウェアの設定 - 最大限緩和
 app.use(cors({
-  origin: function(origin, callback) {
-    // originがnullの場合（例：Postmanなどのツール）や許可されたオリジンの場合は許可
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      console.log('CORS エラー: ', origin);
-      callback(new Error(`オリジン ${origin} からのアクセスは許可されていません`));
-    }
-  },
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Company-ID', 'X-Requested-With', 'Origin', 'Accept'],
+  origin: '*', // すべてのオリジンを許可
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Company-ID', 'X-Requested-With', 'Origin', 'Accept', 'Access-Control-Allow-Headers'],
   credentials: true,
   maxAge: 86400, // プリフライトリクエストの結果をキャッシュする秒数（24時間）
   preflightContinue: false, // OPTIONSリクエストを適切に処理
