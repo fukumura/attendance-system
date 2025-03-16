@@ -10,6 +10,12 @@ router.post('/setup', authController.setupAdmin);
 // ユーザー登録（管理者のみ実行可能）
 router.post('/register', authenticate, requireAdmin, authController.register);
 
+// メールアドレス認証
+router.post('/verify-email', authController.verifyEmail);
+
+// 認証トークン再送信
+router.post('/resend-verification', authController.resendVerification);
+
 // ログイン
 router.post('/login', authController.login);
 

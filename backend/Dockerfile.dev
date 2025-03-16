@@ -1,8 +1,8 @@
-FROM --platform=linux/arm64 node:20-alpine
+FROM --platform=linux/arm64 node:18-alpine
 
 WORKDIR /app
 
-# 必要なパッケージをインストール（OpenSSLを含む）
+# Alpineで必要なパッケージをインストール（OpenSSLを含む）
 RUN apk add --no-cache \
     openssl \
     libssl3 \

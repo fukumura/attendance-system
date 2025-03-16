@@ -57,6 +57,7 @@ async function main() {
       name: '管理者 太郎',
       role: Role.ADMIN,
       companyId: company1.id,
+      isEmailVerified: true, // メール認証済みに設定
     },
   });
 
@@ -67,6 +68,7 @@ async function main() {
       name: '社員 一郎',
       role: Role.EMPLOYEE,
       companyId: company1.id,
+      isEmailVerified: true, // メール認証済みに設定
     },
   });
 
