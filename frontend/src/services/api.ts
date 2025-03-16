@@ -41,7 +41,9 @@ export interface AttendanceRecordsResponse {
 }
 
 // API基本設定
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+// 開発環境ではプロキシを使用し、本番環境では環境変数を使用
+const isDevelopment = import.meta.env.DEV;
+const API_URL = isDevelopment ? '' : (import.meta.env.VITE_API_URL || 'http://localhost:5000');
 
 // APIクライアントの作成
 const api = axios.create({
@@ -49,6 +51,7 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true, // CORSリクエストでクッキーを送信
 });
 
 // リクエストインターセプター - 認証トークンと企業IDの追加
@@ -217,7 +220,9 @@ export const reportApi = {
       type: params.type
     }).toString();
     
-    window.open(`${API_URL}/api/reports/export?${queryParams}`);
+    // 開発環境ではプロキシを使用し、本番環境では環境変数を使用
+    const baseUrl = isDevelopment ? window.location.origin : API_URL;
+    window.open(`${baseUrl}/api/reports/export?${queryParams}`);
   },
 };
 
