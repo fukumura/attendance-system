@@ -1,17 +1,19 @@
 [build]
 builder = "nixpacks"
-# Node.jsを明示的に指定
-buildCommand = "cd backend && npm install && npx prisma generate && npm run build"
-watchPatterns = ["backend/**"]
+# TypeScriptをインストールして明示的にコンパイル
+buildCommand = "cd backend && npm install && npm install -g typescript && npx tsc --skipLibCheck && ls -la && ls -la dist || echo 'dist directory not found'"
 
 [deploy]
-startCommand = "cd backend && (npx prisma migrate deploy || npx prisma db push --accept-data-loss) && node dist/server.js"
-restartPolicyType = "ON_FAILURE"
-numReplicas = 1
+# デプロイ時にファイル構造を確認してからアプリケーションを起動
+startCommand = "cd backend && ls -la && find . -name 'server.js' && (npx prisma migrate deploy || npx prisma db push --accept-data-loss) && node dist/server.js"
 
 [nixpacks]
-workdir = "backend"
+workdir = "."
 
 # Node.js環境を明示的に指定
-[nixpacks.build.env]
+[nixpacks.env]
 NODE_VERSION = "18"
+
+# 明示的にNode.jsプランを使用
+[nixpacks.plan]
+providers = ["nodejs"]

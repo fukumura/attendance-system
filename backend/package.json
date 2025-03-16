@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node dist/server.js",
     "dev": "nodemon --exec ts-node src/server.ts",
-    "build": "tsc",
+    "build": "tsc --project tsconfig.json",
     "test": "jest",
     "test:email": "ts-node src/tests/emailTest.ts",
     "lint": "eslint . --ext .ts",
@@ -32,7 +32,9 @@
     "jsonwebtoken": "^9.x",
     "nodemailer": "^6.10.0",
     "uuid": "^11.1.0",
-    "zod": "^3.x"
+    "zod": "^3.x",
+    "typescript": "^5.8.2",
+    "ts-node": "^10.9.2"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
@@ -51,8 +53,6 @@
     "nodemon": "^2.0.22",
     "prettier": "^2.x",
     "prisma": "^4.x",
-    "ts-jest": "^29.x",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.8.2"
+    "ts-jest": "^29.x"
   }
 }
