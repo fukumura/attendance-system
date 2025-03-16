@@ -22,7 +22,7 @@ COPY . .
 RUN npx prisma generate
 
 # TypeScriptのビルド（テストファイルを除外）
-RUN npx tsc --skipLibCheck --excludeFiles "tests/**/*"
+RUN npx tsc --skipLibCheck
 
 # アプリケーション起動時にマイグレーションを実行してからサーバー起動
-CMD npx prisma migrate deploy || npx prisma db push --accept-data-loss && npm start
+CMD npx prisma migrate deploy || npx prisma db push --accept-data-loss && node dist/server.js
