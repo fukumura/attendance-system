@@ -65,14 +65,26 @@ async function testDatabaseConnection() {
 // アプリケーション起動時にデータベース接続をテスト
 testDatabaseConnection();
 
-// Middleware
+// Middleware - CORS設定を強化
 app.use(cors({
+  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Company-ID'],
+  credentials: true,
+  preflightContinue: false,
+  optionsSuccessStatus: 204
+}));
+
+// プリフライトリクエスト用のグローバルハンドラ
+app.options('*', cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:3000',
   credentials: true
 }));
 
-// Helmet.jsによるセキュリティヘッダー設定
-app.use(helmet());
+// Helmet.jsによるセキュリティヘッダー設定（CORS互換性を確保）
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: 'cross-origin' }
+}));
 
 // ペイロードサイズの制限
 app.use(express.json({ limit: '1mb' }));
@@ -87,8 +99,13 @@ const generalLimiter = rateLimit({
   message: { error: 'リクエスト数が多すぎます。しばらく経ってから再試行してください。' }
 });
 
-// 全体的なレート制限を適用
-app.use(generalLimiter);
+// 全体的なレート制限を適用（OPTIONSリクエストを除外）
+app.use((req, res, next) => {
+  if (req.method === 'OPTIONS') {
+    return next();
+  }
+  return generalLimiter(req, res, next);
+});
 
 // 認証エンドポイント用の厳格なレート制限
 const authLimiter = rateLimit({
@@ -115,9 +132,20 @@ app.get('/health', (_req: Request, res: Response) => {
   res.json({ status: 'ok' });
 });
 
-// API routes
-app.use('/api/auth/login', authLimiter);
-app.use('/api/auth/register', authLimiter);
+// API routes - レート制限をOPTIONSリクエスト以外に適用
+app.use('/api/auth/login', (req, res, next) => {
+  if (req.method === 'OPTIONS') {
+    return next();
+  }
+  return authLimiter(req, res, next);
+});
+
+app.use('/api/auth/register', (req, res, next) => {
+  if (req.method === 'OPTIONS') {
+    return next();
+  }
+  return authLimiter(req, res, next);
+});
 app.use('/api/auth', authRoutes);
 app.use('/api/attendance', attendanceRoutes);
 app.use('/api/leave', leaveRoutes);
