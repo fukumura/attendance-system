@@ -66,7 +66,10 @@ async function testDatabaseConnection() {
 testDatabaseConnection();
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  credentials: true
+}));
 
 // Helmet.jsによるセキュリティヘッダー設定
 app.use(helmet());
