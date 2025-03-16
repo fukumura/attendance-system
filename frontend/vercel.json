@@ -22,7 +22,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://api.pocket-kintai.com/api/:path*"
+      "destination": "https://api.pocket-kintai.com/app/api/:path*"
     },
     {
       "source": "/(.*)",
