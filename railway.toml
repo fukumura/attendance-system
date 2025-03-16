@@ -1,14 +1,9 @@
 [build]
 builder = "nixpacks"
-# ビルド時に依存関係のインストール、Prisma生成、ビルドを行う
-buildCommand = "cd backend && npm install && npx prisma generate && npx tsc --skipLibCheck"
+buildCommand = "cd backend && npm install && npm run build"
 watchPatterns = ["backend/**"]
 
 [deploy]
-# デプロイ時にマイグレーションを適用してからアプリケーションを起動
-startCommand = "cd backend && (npx prisma migrate deploy || npx prisma db push --accept-data-loss) && node dist/server.js"
+startCommand = "cd backend && npx prisma migrate deploy && npx prisma generate && npm start"
 restartPolicyType = "ON_FAILURE"
 numReplicas = 1
-
-[nixpacks]
-workdir = "backend"
