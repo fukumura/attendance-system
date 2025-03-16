@@ -67,8 +67,7 @@ testDatabaseConnection();
 
 // 許可するオリジンの設定
 const allowedOrigins = [
-  'https://attendance-system-seven-neon.vercel.app',
-  'https://pocket-kintani.com',
+  'https://pocket-kintai.com',
   'http://localhost:3000', // 開発環境用
   process.env.FRONTEND_URL // 環境変数から設定されたフロントエンドURL
 ].filter(Boolean); // undefinedやnullをフィルタリング
