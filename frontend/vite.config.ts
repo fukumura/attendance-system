@@ -7,7 +7,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://attendance-system-production-18e1.up.railway.app',
+        target: 'http://backend:5000',
         changeOrigin: true,
         secure: false,
       }
