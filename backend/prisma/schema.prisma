@@ -29,6 +29,9 @@ model User {
   role            Role              @default(EMPLOYEE)
   company         Company?          @relation(fields: [companyId], references: [id])
   companyId       String?           // SUPER_ADMINの場合はnull可能
+  isEmailVerified Boolean           @default(false)
+  verificationToken String?
+  verificationTokenExpiry DateTime?
   attendanceRecords AttendanceRecord[]
   leaveRequests   LeaveRequest[]
   createdAt       DateTime          @default(now())
