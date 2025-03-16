@@ -21,8 +21,8 @@ COPY . .
 # Prisma Clientの生成
 RUN npx prisma generate
 
-# TypeScriptのビルド
-RUN npm run build
+# TypeScriptのビルド（テストファイルを除外）
+RUN npx tsc --skipLibCheck --excludeFiles "tests/**/*"
 
 # アプリケーション起動時にマイグレーションを実行してからサーバー起動
 CMD npx prisma migrate deploy || npx prisma db push --accept-data-loss && npm start
