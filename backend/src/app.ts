@@ -2,6 +2,8 @@ import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import { PrismaClient } from '@prisma/client';
 import dotenv from 'dotenv';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
 
 // Import routes
 import authRoutes from './routes/authRoutes';
@@ -65,8 +67,34 @@ testDatabaseConnection();
 
 // Middleware
 app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+
+// Helmet.jsによるセキュリティヘッダー設定
+app.use(helmet());
+
+// ペイロードサイズの制限
+app.use(express.json({ limit: '1mb' }));
+app.use(express.urlencoded({ extended: true, limit: '1mb' }));
+
+// 全体的なレート制限
+const generalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15分間
+  max: 100, // IPアドレスごとに100リクエストまで
+  standardHeaders: true, // 'RateLimit-*' ヘッダーを含める
+  legacyHeaders: false, // 'X-RateLimit-*' ヘッダーを無効化
+  message: { error: 'リクエスト数が多すぎます。しばらく経ってから再試行してください。' }
+});
+
+// 全体的なレート制限を適用
+app.use(generalLimiter);
+
+// 認証エンドポイント用の厳格なレート制限
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15分間
+  max: 10, // IPアドレスごとに10リクエストまで
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: '認証リクエスト数が多すぎます。しばらく経ってから再試行してください。' }
+});
 
 // Logging middleware
 app.use((req: Request, _res: Response, next: NextFunction) => {
@@ -85,6 +113,8 @@ app.get('/health', (_req: Request, res: Response) => {
 });
 
 // API routes
+app.use('/api/auth/login', authLimiter);
+app.use('/api/auth/register', authLimiter);
 app.use('/api/auth', authRoutes);
 app.use('/api/attendance', attendanceRoutes);
 app.use('/api/leave', leaveRoutes);
