@@ -6,7 +6,7 @@ watchPatterns = ["backend/**"]
 
 [deploy]
 # デプロイ時にマイグレーションを適用してからアプリケーションを起動
-startCommand = "cd backend && npx prisma migrate deploy && npm start"
+startCommand = "cd backend && npx prisma db push --accept-data-loss && npm start"
 restartPolicyType = "ON_FAILURE"
 numReplicas = 1
 

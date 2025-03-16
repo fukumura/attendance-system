@@ -21,6 +21,7 @@ const registerSchema = z.object({
   email: z.string().email('有効なメールアドレスを入力してください'),
   password: z.string().min(6, 'パスワードは6文字以上である必要があります'),
   name: z.string().min(1, '名前は必須です'),
+  companyId: z.string().optional(), // 企業ID（オプション）
 });
 
 const loginSchema = z.object({
@@ -429,6 +430,23 @@ export const authController = {
         });
       }
       
+      // 企業IDの検証（指定されている場合）
+      let companyId = null;
+      if (validatedData.companyId) {
+        const company = await prisma.company.findFirst({
+          where: { publicId: validatedData.companyId },
+        });
+        
+        if (!company) {
+          return res.status(400).json({
+            status: 'error',
+            message: '指定された企業IDは存在しません',
+          });
+        }
+        
+        companyId = company.id;
+      }
+      
       // パスワードのハッシュ化
       const hashedPassword = await bcrypt.hash(validatedData.password, 10);
       
@@ -443,6 +461,7 @@ export const authController = {
           password: hashedPassword,
           name: validatedData.name,
           role: 'EMPLOYEE', // デフォルトは一般従業員
+          companyId: companyId, // 企業ID（検証済み）
           isEmailVerified: false,
           verificationToken,
           verificationTokenExpiry,

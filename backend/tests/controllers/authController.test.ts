@@ -1,5 +1,6 @@
 import { authController } from '../../src/controllers/authController';
 import { mockRequest, mockResponse, prismaMock } from '../utils/testUtils';
+import { emailService } from '../../src/services/emailService';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
@@ -52,12 +53,21 @@ describe('Auth Controller', () => {
         password: 'hashed_password',
         role: 'EMPLOYEE',
         companyId: null,
+        isEmailVerified: false,
+        verificationToken: 'mock-token',
+        verificationTokenExpiry: new Date(Date.now() + 24 * 60 * 60 * 1000),
         createdAt: new Date(),
         updatedAt: new Date(),
       };
 
+      // Mock company check
+      prismaMock.company.findFirst.mockResolvedValue(null);
+      
       prismaMock.user.findFirst.mockResolvedValue(null); // No existing user
       prismaMock.user.create.mockResolvedValue(mockUser as any);
+      
+      // Mock email service
+      jest.spyOn(emailService, 'sendVerificationEmail').mockResolvedValue({});
 
       // Act
       await authController.register(req, res);
@@ -73,18 +83,24 @@ describe('Auth Controller', () => {
           email: 'test@example.com',
           password: 'hashed_password',
           role: 'EMPLOYEE',
+          companyId: null,
+          isEmailVerified: false,
+          verificationToken: expect.any(String),
+          verificationTokenExpiry: expect.any(Date),
         },
       });
       
-      expect(jwt.sign).toHaveBeenCalledWith(
-        { userId: mockUser.id, companyId: null, role: mockUser.role },
-        'test-secret',
-        { expiresIn: '24h' }
+      expect(emailService.sendVerificationEmail).toHaveBeenCalledWith(
+        mockUser.email,
+        mockUser.name,
+        expect.any(String),
+        mockUser.id
       );
 
       expect(res.status).toHaveBeenCalledWith(201);
       expect(res.json).toHaveBeenCalledWith({
         status: 'success',
+        message: 'ユーザーが作成され、認証メールが送信されました',
         data: {
           user: {
             id: mockUser.id,
@@ -92,10 +108,12 @@ describe('Auth Controller', () => {
             email: mockUser.email,
             role: mockUser.role,
             companyId: null,
+            isEmailVerified: false,
+            verificationToken: expect.any(String),
+            verificationTokenExpiry: expect.any(Date),
             createdAt: expect.any(Date),
             updatedAt: expect.any(Date),
           },
-          token: 'mock_token',
         },
       });
     });
@@ -198,7 +216,7 @@ describe('Auth Controller', () => {
   });
 
   describe('login', () => {
-    it('should login successfully with valid credentials', async () => {
+    it('should login successfully with valid credentials and verified email', async () => {
       // Arrange
       const req = mockRequest({
         body: {
@@ -217,6 +235,7 @@ describe('Auth Controller', () => {
         password: 'hashed_password',
         role: 'EMPLOYEE',
         companyId: null,
+        isEmailVerified: true,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
@@ -255,11 +274,56 @@ describe('Auth Controller', () => {
             email: mockUser.email,
             role: mockUser.role,
             companyId: null,
+            isEmailVerified: true,
             createdAt: expect.any(Date),
             updatedAt: expect.any(Date),
           },
           token: 'mock_token',
         },
+      });
+    });
+
+    it('should return 403 when email is not verified', async () => {
+      // Arrange
+      const req = mockRequest({
+        body: {
+          email: 'test@example.com',
+          password: 'password123',
+        },
+      });
+
+      const res = mockResponse();
+
+      // Mock user retrieval
+      const mockUser = {
+        id: 'user-id',
+        name: 'Test User',
+        email: 'test@example.com',
+        password: 'hashed_password',
+        role: 'EMPLOYEE',
+        companyId: null,
+        isEmailVerified: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      prismaMock.user.findFirst.mockResolvedValue(mockUser as any);
+
+      // Mock password comparison
+      (bcrypt.compare as jest.Mock).mockResolvedValue(true);
+
+      // Act
+      await authController.login(req, res);
+
+      // Assert
+      expect(bcrypt.compare).toHaveBeenCalledWith('password123', 'hashed_password');
+      expect(jwt.sign).not.toHaveBeenCalled();
+      expect(res.status).toHaveBeenCalledWith(403);
+      expect(res.json).toHaveBeenCalledWith({
+        status: 'error',
+        message: 'メールアドレスが認証されていません。認証メールを確認してください。',
+        needsVerification: true,
+        email: mockUser.email,
       });
     });
 
