@@ -86,7 +86,9 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Company-ID', 'X-Requested-With', 'Origin', 'Accept'],
   credentials: true,
-  maxAge: 86400 // プリフライトリクエストの結果をキャッシュする秒数（24時間）
+  maxAge: 86400, // プリフライトリクエストの結果をキャッシュする秒数（24時間）
+  preflightContinue: false, // OPTIONSリクエストを適切に処理
+  optionsSuccessStatus: 204 // OPTIONSリクエストに対する成功ステータスコード
 }));
 
 // Helmet.jsによるセキュリティヘッダー設定（CORS互換性を確保）
