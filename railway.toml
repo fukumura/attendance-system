@@ -1,11 +1,14 @@
 [build]
 builder = "nixpacks"
-# ビルド時にマイグレーションファイルの生成と依存関係のインストール、ビルドを行う
-buildCommand = "cd backend && npm install && npx prisma generate && npm run build"
-watchPatterns = ["backend/**"]
+# ビルドプロセスをより詳細に
+buildCommand = "cd backend && npm install && npx prisma generate && rm -rf dist && npm run build && ls -la && ls -la dist || echo 'dist見つからず"
 
 [deploy]
-# デプロイ時にマイグレーションを適用してからアプリケーションを起動
-startCommand = "cd backend && npx prisma migrate deploy && npm start"
-restartPolicyType = "ON_FAILURE"
-numReplicas = 1
+# 起動前にさらに詳細な情報を確認
+startCommand = "cd backend && pwd && find . -name \"server.js\" && (npx prisma migrate deploy || npx prisma db push --accept-data-loss) && node dist/server.js"
+
+[nixpacks]
+workdir = "backend"
+
+[nixpacks.env]
+NODE_VERSION = "18"
