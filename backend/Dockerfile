@@ -21,8 +21,8 @@ COPY . .
 # Prisma Clientの生成
 RUN npx prisma generate
 
-# TypeScriptのビルド（テストファイルを除外）
+# TypeScriptのビルド
 RUN npx tsc --skipLibCheck
 
-# アプリケーション起動時にマイグレーションを実行してからサーバー起動
-CMD npx prisma migrate deploy || npx prisma db push --accept-data-loss && node dist/server.js
+# マイグレーションを実行してからサーバー起動（配列形式で正確に指定）
+CMD ["sh", "-c", "npx prisma migrate deploy || npx prisma db push --accept-data-loss && node dist/server.js"]
