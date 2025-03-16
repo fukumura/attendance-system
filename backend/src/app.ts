@@ -65,7 +65,23 @@ async function testDatabaseConnection() {
 // アプリケーション起動時にデータベース接続をテスト
 testDatabaseConnection();
 
-// Middleware - CORS設定を強化
+// すべてのリクエストに対してCORSヘッダーを追加するカスタムミドルウェア
+app.use((req, res, next) => {
+  // フロントエンドのオリジンを明示的に許可
+  res.header('Access-Control-Allow-Origin', 'https://attendance-system-seven-neon.vercel.app');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, X-Company-ID');
+  
+  // プリフライトリクエスト（OPTIONS）の場合は即座に200を返す
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+  
+  next();
+});
+
+// バックアップとして既存のCORS設定も残しておく
 app.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:3000',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
