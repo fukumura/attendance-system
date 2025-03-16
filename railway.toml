@@ -1,7 +1,7 @@
 [build]
 builder = "nixpacks"
 # ビルドプロセスをより詳細に
-buildCommand = "cd backend && npm install && npx prisma generate && rm -rf dist && npm run build && ls -la && ls -la dist || echo 'dist見つからず"
+buildCommand = "cd backend && npm install && npx prisma generate && rm -rf dist && npm run build && ls -la && ls -la dist || echo 'dist不見つかり'"
 
 [deploy]
 # 起動前にさらに詳細な情報を確認
