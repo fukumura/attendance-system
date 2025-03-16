@@ -1,9 +1,10 @@
 // Jest setup file
 import { PrismaClient } from '@prisma/client';
 import { DeepMockProxy, mockDeep, mockReset } from 'jest-mock-extended';
+import { PrismaMockReturnTypes } from './types';
 
-// Create a mock instance of PrismaClient
-export const prismaMock = mockDeep<PrismaClient>() as unknown as DeepMockProxy<PrismaClient>;
+// Create a mock instance of PrismaClient with proper return types
+export const prismaMock = mockDeep<PrismaClient>() as unknown as DeepMockProxy<PrismaClient> & PrismaMockReturnTypes;
 
 // Mock the PrismaClient
 jest.mock('../src/app', () => ({

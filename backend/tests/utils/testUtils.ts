@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { mockDeep, DeepMockProxy } from 'jest-mock-extended';
+import { UserResponse } from '../types';
 
 // Extend Express Request type for testing
 type MockRequest = DeepMockProxy<Request> & {
@@ -8,6 +9,7 @@ type MockRequest = DeepMockProxy<Request> & {
     email: string;
     name: string;
     role: string;
+    companyId?: string | null;
   };
 };
 
@@ -15,6 +17,15 @@ type MockRequest = DeepMockProxy<Request> & {
 type MockResponse = DeepMockProxy<Response> & {
   statusCode?: number;
   body?: any;
+};
+
+// Define user types for different roles
+export type MockUser = {
+  id: string;
+  email: string;
+  name: string;
+  role: string;
+  companyId?: string | null;
 };
 
 // Mock request factory

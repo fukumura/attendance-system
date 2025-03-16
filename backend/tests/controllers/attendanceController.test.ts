@@ -1,5 +1,7 @@
 import { mockRequest, mockAdminRequest, mockResponse, prismaMock } from '../utils/testUtils';
 import { attendanceController } from '../../src/controllers/attendanceController';
+import { AttendanceRecord } from '@prisma/client';
+import { AttendanceRecordCreateInput, AttendanceRecordResponse } from '../types';
 
 // Set up a fixed date for testing
 const mockDate = new Date('2025-04-01T09:00:00Z');

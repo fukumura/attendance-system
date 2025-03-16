@@ -2,6 +2,8 @@ import { companyController } from '../../src/controllers/companyController';
 import { mockRequest, mockResponse, mockSuperAdminRequest, mockAdminRequest, prismaMock } from '../utils/testUtils';
 import * as companyUtils from '../../src/utils/companyUtils';
 import { jest } from '@jest/globals';
+import { Company } from '@prisma/client';
+import { CompanyCreateInput, CompanyResponse, PrismaMockReturnTypes } from '../types';
 
 // Mock companyUtils
 jest.mock('../../src/utils/companyUtils', () => ({
@@ -9,20 +11,8 @@ jest.mock('../../src/utils/companyUtils', () => ({
   findCompanyIdByPublicId: jest.fn(),
 }));
 
-// Type assertion for Prisma mock to avoid TypeScript errors
-const typedPrismaMock = prismaMock as {
-  company: {
-    findMany: jest.Mock;
-    findUnique: jest.Mock;
-    create: jest.Mock;
-    update: jest.Mock;
-    delete: jest.Mock;
-    count: jest.Mock;
-  };
-  user: {
-    count: jest.Mock;
-  };
-};
+// Use the PrismaMockReturnTypes from our types file
+const typedPrismaMock = prismaMock;
 
 describe('Company Controller', () => {
   beforeEach(() => {
@@ -182,7 +172,7 @@ describe('Company Controller', () => {
       
       // Assert
       expect(typedPrismaMock.company.findUnique).toHaveBeenCalledWith({
-        where: { id: 'company-id-1' }
+        where: { publicId: 'company-id-1' }
       });
       
       expect(res.status).toHaveBeenCalledWith(200);
@@ -451,7 +441,7 @@ describe('Company Controller', () => {
       
       // Assert
       expect(typedPrismaMock.company.findUnique).toHaveBeenCalledWith({
-        where: { id: 'company-id-1' }
+        where: { publicId: 'company-id-1' }
       });
       
       expect(typedPrismaMock.company.update).toHaveBeenCalledWith({
@@ -645,7 +635,7 @@ describe('Company Controller', () => {
       
       // Assert
       expect(typedPrismaMock.company.findUnique).toHaveBeenCalledWith({
-        where: { id: 'company-id-1' }
+        where: { publicId: 'company-id-1' }
       });
       
       expect(typedPrismaMock.user.count).toHaveBeenCalledWith({
@@ -803,10 +793,14 @@ describe('Company Controller', () => {
       const mockCompany = {
         id: 'company-id-1',
         publicId: 'ABC12345',
+        name: 'Test Company',
+        logoUrl: 'https://example.com/logo.png',
         settings: {
           theme: 'dark',
           workHours: { start: '9:00', end: '18:00' }
-        }
+        },
+        createdAt: new Date(),
+        updatedAt: new Date()
       };
       
       typedPrismaMock.company.findUnique.mockResolvedValue(mockCompany);
@@ -816,7 +810,7 @@ describe('Company Controller', () => {
       
       // Assert
       expect(typedPrismaMock.company.findUnique).toHaveBeenCalledWith({
-        where: { id: 'company-id-1' },
+        where: { publicId: 'company-id-1' },
         select: { settings: true }
       });
       
@@ -840,10 +834,14 @@ describe('Company Controller', () => {
       const mockCompany = {
         id: 'company-id-1',
         publicId: 'ABC12345',
+        name: 'Test Company',
+        logoUrl: 'https://example.com/logo.png',
         settings: {
           theme: 'light',
           workHours: { start: '9:00', end: '17:00' }
-        }
+        },
+        createdAt: new Date(),
+        updatedAt: new Date()
       };
       
       typedPrismaMock.company.findUnique.mockResolvedValue(mockCompany);
@@ -877,7 +875,11 @@ describe('Company Controller', () => {
       const mockCompany = {
         id: 'company-id-1',
         publicId: 'ABC12345',
-        settings: null
+        name: 'Test Company',
+        logoUrl: 'https://example.com/logo.png',
+        settings: null,
+        createdAt: new Date(),
+        updatedAt: new Date()
       };
       
       typedPrismaMock.company.findUnique.mockResolvedValue(mockCompany);
@@ -961,10 +963,14 @@ describe('Company Controller', () => {
       const mockCompany = {
         id: 'company-id-1',
         publicId: 'ABC12345',
+        name: 'Test Company',
+        logoUrl: 'https://example.com/logo.png',
         settings: {
           theme: 'light',
           workHours: { start: '9:00', end: '17:00' }
-        }
+        },
+        createdAt: new Date(),
+        updatedAt: new Date()
       };
       
       const mockUpdatedCompany = {
@@ -983,7 +989,7 @@ describe('Company Controller', () => {
       
       // Assert
       expect(typedPrismaMock.company.findUnique).toHaveBeenCalledWith({
-        where: { id: 'company-id-1' }
+        where: { publicId: 'company-id-1' }
       });
       
       expect(typedPrismaMock.company.update).toHaveBeenCalledWith({
@@ -1015,9 +1021,13 @@ describe('Company Controller', () => {
       const mockCompany = {
         id: 'company-id-1',
         publicId: 'ABC12345',
+        name: 'Test Company',
+        logoUrl: 'https://example.com/logo.png',
         settings: {
           theme: 'light'
-        }
+        },
+        createdAt: new Date(),
+        updatedAt: new Date()
       };
       
       const mockUpdatedCompany = {
@@ -1117,9 +1127,13 @@ describe('Company Controller', () => {
       const mockCompany = {
         id: 'company-id-1',
         publicId: 'ABC12345',
+        name: 'Test Company',
+        logoUrl: 'https://example.com/logo.png',
         settings: {
           theme: 'light'
-        }
+        },
+        createdAt: new Date(),
+        updatedAt: new Date()
       };
       
       typedPrismaMock.company.findUnique.mockResolvedValue(mockCompany);
