@@ -3,6 +3,8 @@ import { mockRequest, mockResponse, prismaMock } from '../utils/testUtils';
 import { emailService } from '../../src/services/emailService';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { User } from '@prisma/client';
+import { UserCreateInput, UserResponse } from '../types';
 
 // Mock bcrypt and jwt
 jest.mock('bcryptjs');
