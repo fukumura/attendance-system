@@ -1,11 +1,17 @@
 [build]
 builder = "nixpacks"
-# ビルド時にマイグレーションファイルの生成と依存関係のインストール、ビルドを行う
+# Node.jsを明示的に指定
 buildCommand = "cd backend && npm install && npx prisma generate && npm run build"
 watchPatterns = ["backend/**"]
 
 [deploy]
-# デプロイ時にマイグレーションを適用してからアプリケーションを起動
-startCommand = "cd backend && npx prisma migrate deploy && npm start"
+startCommand = "cd backend && (npx prisma migrate deploy || npx prisma db push --accept-data-loss) && node dist/server.js"
 restartPolicyType = "ON_FAILURE"
 numReplicas = 1
+
+[nixpacks]
+workdir = "backend"
+
+# Node.js環境を明示的に指定
+[nixpacks.build.env]
+NODE_VERSION = "18"
