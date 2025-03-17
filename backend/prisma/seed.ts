@@ -41,6 +41,7 @@ async function main() {
       name: 'スーパー管理者',
       role: Role.SUPER_ADMIN,
       // companyId is null
+      isEmailVerified: true, // メール認証済みに設定
     },
   });
   
