@@ -43,7 +43,8 @@ export interface AttendanceRecordsResponse {
 // API基本設定
 // 開発環境ではプロキシを使用し、本番環境では環境変数を使用
 const isDevelopment = import.meta.env.DEV;
-const API_URL = isDevelopment ? '' : (import.meta.env.VITE_API_URL || 'http://localhost:5000');
+// 本番環境ではAPIリクエストはVercelのリライトルールを通じて転送されるため、相対パスを使用
+const API_URL = isDevelopment ? '' : '';
 
 // APIクライアントの作成
 const api = axios.create({

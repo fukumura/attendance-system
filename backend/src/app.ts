@@ -65,9 +65,9 @@ async function testDatabaseConnection() {
 // アプリケーション起動時にデータベース接続をテスト
 testDatabaseConnection();
 
-// CORSミドルウェアの設定 - 最大限緩和
+// CORSミドルウェアの設定 - 認証情報を考慮した設定
 app.use(cors({
-  origin: '*', // すべてのオリジンを許可
+  origin: 'https://pocket-kintai.com', // フロントエンドのオリジンを明示的に指定
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Company-ID', 'X-Requested-With', 'Origin', 'Accept', 'Access-Control-Allow-Headers'],
   credentials: true,
