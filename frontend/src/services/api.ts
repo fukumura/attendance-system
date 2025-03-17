@@ -51,8 +51,8 @@ const api = axios.create({
   baseURL: API_URL,
   headers: {
     'Content-Type': 'application/json',
-  },
-  withCredentials: true, // CORSリクエストでクッキーを送信
+  }
+  // withCredentials オプションを削除して認証情報の送信を無効化
 });
 
 // リクエストインターセプター - 認証トークンと企業IDの追加

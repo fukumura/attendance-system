@@ -65,16 +65,8 @@ async function testDatabaseConnection() {
 // アプリケーション起動時にデータベース接続をテスト
 testDatabaseConnection();
 
-// CORSミドルウェアの設定 - 認証情報を考慮した設定
-app.use(cors({
-  origin: 'https://pocket-kintai.com', // フロントエンドのオリジンを明示的に指定
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Company-ID', 'X-Requested-With', 'Origin', 'Accept', 'Access-Control-Allow-Headers'],
-  credentials: true,
-  maxAge: 86400, // プリフライトリクエストの結果をキャッシュする秒数（24時間）
-  preflightContinue: false, // OPTIONSリクエストを適切に処理
-  optionsSuccessStatus: 204 // OPTIONSリクエストに対する成功ステータスコード
-}));
+// CORSミドルウェアの設定 - 最大限シンプルに
+app.use(cors());
 
 // Helmet.jsによるセキュリティヘッダー設定（CORS互換性を確保）
 app.use(helmet({
