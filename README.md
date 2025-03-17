@@ -176,39 +176,6 @@ npm test
 npm run test:e2e
 ```
 
-## トラブルシューティング | Troubleshooting
-
-### 一般的な問題 | Common Issues
-
-1. **データベース接続エラー | Database Connection Errors**
-   - `.env` ファイルのデータベース接続文字列を確認してください
-   - Check the database connection string in your `.env` file
-
-2. **ポートの競合 | Port Conflicts**
-   - 他のアプリケーションが同じポートを使用していないか確認してください
-   - Ensure no other applications are using the same ports
-
-3. **Prismaエラー | Prisma Errors**
-   - スキーマの変更後は `npx prisma generate` を実行してください
-   - Run `npx prisma generate` after schema changes
-
-詳細なトラブルシューティングガイドは [docs/troubleshooting.md](docs/troubleshooting.md) を参照してください。
-*For a more detailed troubleshooting guide, refer to [docs/troubleshooting.md](docs/troubleshooting.md).*
-
-## 貢献 | Contributing
-
-プロジェクトへの貢献に興味がある場合は、以下の手順に従ってください：
-*If you're interested in contributing to the project, please follow these steps:*
-
-1. リポジトリをフォークする | Fork the repository
-2. 機能ブランチを作成する (`git checkout -b feature/amazing-feature`)
-3. 変更をコミットする (`git commit -m 'Add some amazing feature'`)
-4. ブランチにプッシュする (`git push origin feature/amazing-feature`)
-5. プルリクエストを開く | Open a Pull Request
-
-詳細なガイドラインは [CONTRIBUTING.md](CONTRIBUTING.md) を参照してください。
-*For more detailed guidelines, refer to [CONTRIBUTING.md](CONTRIBUTING.md).*
-
 ## ライセンス | License
 
 このプロジェクトは MIT ライセンスの下で公開されています。詳細は [LICENSE](LICENSE) ファイルを参照してください。
