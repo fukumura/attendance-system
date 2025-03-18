@@ -65,21 +65,33 @@ async function testDatabaseConnection() {
 // アプリケーション起動時にデータベース接続をテスト
 testDatabaseConnection();
 
-// CORSミドルウェアの設定 - 最大限緩和
+// CORSミドルウェアの設定 - 環境変数から設定を読み込む
 app.use(cors({
-  origin: '*', // すべてのオリジンを許可
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Company-ID', 'X-Requested-With', 'Origin', 'Accept', 'Access-Control-Allow-Headers'],
-  credentials: true,
-  maxAge: 86400, // プリフライトリクエストの結果をキャッシュする秒数（24時間）
-  preflightContinue: false, // OPTIONSリクエストを適切に処理
-  optionsSuccessStatus: 204 // OPTIONSリクエストに対する成功ステータスコード
+  origin: process.env.CORS_ORIGIN || '*',
+  methods: process.env.CORS_METHODS?.split(',') || ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: process.env.CORS_ALLOWED_HEADERS?.split(',') || ['Content-Type', 'Authorization', 'X-Company-ID', 'X-Requested-With', 'Origin', 'Accept', 'Access-Control-Allow-Headers'],
+  credentials: process.env.CORS_CREDENTIALS === 'true',
+  maxAge: parseInt(process.env.CORS_MAX_AGE || '86400'),
+  preflightContinue: process.env.CORS_PREFLIGHT_CONTINUE === 'true',
+  optionsSuccessStatus: parseInt(process.env.CORS_OPTIONS_SUCCESS_STATUS || '204')
 }));
 
 // Helmet.jsによるセキュリティヘッダー設定（CORS互換性を確保）
 app.use(helmet({
-  crossOriginResourcePolicy: { policy: 'cross-origin' }
+  crossOriginResourcePolicy: { 
+    policy: (process.env.HELMET_CROSS_ORIGIN_POLICY as 'same-origin' | 'cross-origin' | 'same-site') || 'cross-origin' 
+  },
+  contentSecurityPolicy: process.env.DISABLE_CONTENT_SECURITY_POLICY === 'true' ? false : undefined
 }));
+
+// OPTIONSリクエストを確実に処理するミドルウェア
+app.use((req, res, next) => {
+  if (req.method === 'OPTIONS') {
+    res.status(204).end();
+    return;
+  }
+  next();
+});
 
 // ペイロードサイズの制限
 app.use(express.json({ limit: '1mb' }));
