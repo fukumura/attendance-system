@@ -333,9 +333,17 @@ const UserManagementPage = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                        user.role === 'ADMIN' ? 'bg-purple-100 text-purple-800' : 'bg-green-100 text-green-800'
+                        user.role === 'ADMIN' 
+                          ? 'bg-purple-100 text-purple-800' 
+                          : user.role === 'SUPER_ADMIN'
+                            ? 'bg-red-100 text-red-800'
+                            : 'bg-green-100 text-green-800'
                       }`}>
-                        {user.role === 'ADMIN' ? '管理者' : '一般'}
+                        {user.role === 'ADMIN' 
+                          ? '管理者' 
+                          : user.role === 'SUPER_ADMIN'
+                            ? 'スーパー管理者'
+                            : '一般'}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">

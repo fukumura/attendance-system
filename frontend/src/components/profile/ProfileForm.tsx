@@ -134,7 +134,11 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ onSuccess }) => {
           <div className="mb-4">
             <p className="text-sm text-gray-500 mb-1">ロール</p>
             <p className="text-gray-800">
-              {user?.role === 'ADMIN' ? '管理者' : '一般ユーザー'}
+              {user?.role === 'ADMIN' 
+                ? '管理者' 
+                : user?.role === 'SUPER_ADMIN'
+                  ? 'スーパー管理者'
+                  : '一般ユーザー'}
             </p>
           </div>
         </div>
