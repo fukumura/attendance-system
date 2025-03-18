@@ -95,7 +95,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             <div className="flex justify-between flex-1 md:justify-start">
               {/* ロゴと企業名 */}
               <div className="flex-shrink-0 flex items-center">
-                <h1 className="text-lg md:text-xl font-bold text-gray-900">勤怠管理システム</h1>
+                <h1 className="text-lg md:text-xl font-bold text-gray-900">ポケット勤怠</h1>
                 {company && (
                   <div className="ml-2 px-2 py-1 bg-gray-100 rounded text-sm text-gray-700">
                     {company.name}
@@ -318,7 +318,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       <footer className="bg-white shadow py-4 mt-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <p className="text-sm text-center text-gray-500">
-            &copy; 2025 勤怠管理システム
+            &copy; 2025 ポケット勤怠
           </p>
         </div>
       </footer>

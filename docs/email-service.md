@@ -2,7 +2,7 @@
 
 ## 概要
 
-勤怠管理システムにメール送信機能を実装しました。この機能は主にユーザー登録時のメール認証に使用されます。開発環境では[Ethereal Email](https://ethereal.email/)を使用してメールをテストし、本番環境ではAmazon SESを使用します。
+ポケット勤怠にメール送信機能を実装しました。この機能は主にユーザー登録時のメール認証に使用されます。開発環境では[Ethereal Email](https://ethereal.email/)を使用してメールをテストし、本番環境ではAmazon SESを使用します。
 
 ## 実装内容
 
@@ -52,9 +52,9 @@ model User {
 ```
 # Email settings
 EMAIL_FROM="noreply@example.com"
-EMAIL_FROM_NAME="勤怠管理システム"
+EMAIL_FROM_NAME="ポケット勤怠"
 FRONTEND_URL="http://localhost:3000"
-COMPANY_NAME="勤怠管理システム"
+COMPANY_NAME="ポケット勤怠"
 COMPANY_LOGO=""
 ```
 
@@ -65,9 +65,9 @@ Railway上で以下の環境変数を設定してください：
 ```
 # Email settings
 EMAIL_FROM="noreply@your-domain.com"
-EMAIL_FROM_NAME="勤怠管理システム"
+EMAIL_FROM_NAME="ポケット勤怠"
 FRONTEND_URL="https://your-frontend-url.com"
-COMPANY_NAME="勤怠管理システム"
+COMPANY_NAME="ポケット勤怠"
 COMPANY_LOGO="https://your-logo-url.com/logo.png"
 
 # Amazon SES settings

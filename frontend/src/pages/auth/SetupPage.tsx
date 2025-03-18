@@ -74,7 +74,7 @@ const SetupPage = () => {
     <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-10">
-          <h1 className="text-4xl font-bold text-gray-800 mb-2">勤怠管理システム</h1>
+          <h1 className="text-4xl font-bold text-gray-800 mb-2">ポケット勤怠</h1>
           <p className="text-gray-600">初期セットアップ</p>
         </div>
         

@@ -1,6 +1,6 @@
 # トラブルシューティングガイド | Troubleshooting Guide
 
-このドキュメントでは、勤怠管理システムを使用する際に発生する可能性のある一般的な問題と、その解決方法について説明します。
+このドキュメントでは、ポケット勤怠を使用する際に発生する可能性のある一般的な問題と、その解決方法について説明します。
 
 *This document describes common issues that may occur when using the Attendance Management System and how to resolve them.*
 

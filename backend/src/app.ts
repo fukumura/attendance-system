@@ -131,7 +131,7 @@ app.use((req: Request, _res: Response, next: NextFunction) => {
 
 // Routes
 app.get('/', (_req: Request, res: Response) => {
-  res.json({ message: '勤怠管理システム API' });
+  res.json({ message: 'ポケット勤怠 API' });
 });
 
 // Health check endpoint
