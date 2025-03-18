@@ -43,7 +43,7 @@ export interface AttendanceRecordsResponse {
 // API基本設定
 // 開発環境ではプロキシを使用し、本番環境では環境変数を使用
 const isDevelopment = import.meta.env.DEV;
-const API_URL = isDevelopment ? '' : (import.meta.env.VITE_API_URL || 'https://api.pocket-kintai.com');
+const API_URL = isDevelopment ? '' : (import.meta.env.VITE_API_URL || 'https://api.pocket-kintai.com/app');
 
 // APIクライアントの作成
 const api = axios.create({
