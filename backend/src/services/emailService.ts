@@ -131,7 +131,7 @@ export const emailService = {
               
               <p>{{userName}}様</p>
               
-              <p>勤怠管理システムへのご登録ありがとうございます。</p>
+              <p>ポケット勤怠へのご登録ありがとうございます。</p>
               
               <p>以下のリンクをクリックして、メールアドレスの認証を完了してください：</p>
               
@@ -178,7 +178,7 @@ export const emailService = {
     try {
       // Set default from address
       const from = options.from || process.env.EMAIL_FROM || 'noreply@example.com';
-      const fromName = options.fromName || process.env.EMAIL_FROM_NAME || '勤怠管理システム';
+      const fromName = options.fromName || process.env.EMAIL_FROM_NAME || 'ポケット勤怠';
       
       // Prepare email options
       const mailOptions = {
@@ -239,7 +239,7 @@ export const emailService = {
       const verificationLink = `${baseUrl}/verify-email?token=${verificationToken}&userId=${userId}`;
       
       // Company info
-      const companyName = process.env.COMPANY_NAME || '勤怠管理システム';
+      const companyName = process.env.COMPANY_NAME || 'ポケット勤怠';
       const companyLogo = process.env.COMPANY_LOGO || '';
       
       // Render email template

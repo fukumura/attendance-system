@@ -1,4 +1,4 @@
- 勤怠管理システム | Attendance Management System
+ ポケット勤怠 | Attendance Management System
 
 [![TypeScript](https://img.shields.io/badge/TypeScript-4.9.5-blue.svg)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-18.2.0-blue.svg)](https://reactjs.org/)
@@ -6,7 +6,7 @@
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-14.x-blue.svg)](https://www.postgresql.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-勤怠管理システムは、従業員の出退勤記録、休暇申請、勤怠レポートを管理するためのウェブアプリケーションです。
+ポケット勤怠は、従業員の出退勤記録、休暇申請、勤怠レポートを管理するためのウェブアプリケーションです。
 ![スクリーンショット 2025-03-16 0 58 26](https://github.com/user-attachments/assets/a7a4e016-61bd-4831-9d98-0a2acfbc9755)
 
 *This is a web application for managing employee attendance records, leave requests, and attendance reports.*

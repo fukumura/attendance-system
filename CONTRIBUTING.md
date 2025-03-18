@@ -1,6 +1,6 @@
 # 貢献ガイドライン | Contributing Guidelines
 
-勤怠管理システムプロジェクトへの貢献に興味をお持ちいただき、ありがとうございます。このドキュメントでは、プロジェクトへの貢献方法について説明します。
+ポケット勤怠プロジェクトへの貢献に興味をお持ちいただき、ありがとうございます。このドキュメントでは、プロジェクトへの貢献方法について説明します。
 
 *Thank you for your interest in contributing to the Attendance Management System project. This document describes how to contribute to the project.*
 
