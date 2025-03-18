@@ -166,7 +166,11 @@ const DepartmentReport: React.FC = () => {
                         {userReport.leave.totalLeaveDays}日
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {userReport.user.role === 'ADMIN' ? '管理者' : '従業員'}
+                        {userReport.user.role === 'ADMIN' 
+                          ? '管理者' 
+                          : userReport.user.role === 'SUPER_ADMIN'
+                            ? 'スーパー管理者'
+                            : '従業員'}
                       </td>
                     </tr>
                   ))}
