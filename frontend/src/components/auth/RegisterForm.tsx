@@ -2,6 +2,7 @@ import { useState, FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { useAuthStore } from '../../store/authStore';
+import PasswordStrengthMeter from '../common/PasswordStrengthMeter';
 
 interface RegisterFormProps {
   onSuccess?: () => void;
@@ -31,9 +32,32 @@ const RegisterForm = ({ onSuccess, isAdminForm = false }: RegisterFormProps) => 
     const hasUppercase = /[A-Z]/.test(password);
     const hasLowercase = /[a-z]/.test(password);
     const hasNumber = /[0-9]/.test(password);
+    const hasSpecial = /[^A-Za-z0-9]/.test(password);
     
-    if (!hasUppercase || !hasLowercase || !hasNumber) {
-      setPasswordError('パスワードは大文字、小文字、数字を含む必要があります');
+    if (!hasUppercase) {
+      setPasswordError('パスワードには少なくとも1つの大文字を含める必要があります');
+      return false;
+    }
+    
+    if (!hasLowercase) {
+      setPasswordError('パスワードには少なくとも1つの小文字を含める必要があります');
+      return false;
+    }
+    
+    if (!hasNumber) {
+      setPasswordError('パスワードには少なくとも1つの数字を含める必要があります');
+      return false;
+    }
+    
+    if (!hasSpecial) {
+      setPasswordError('パスワードには少なくとも1つの特殊文字を含める必要があります');
+      return false;
+    }
+    
+    // 一般的なパスワードのチェックはフロントエンドでは簡易的に行う
+    const commonPasswords = ['password', 'password123', '123456', 'qwerty', 'admin'];
+    if (commonPasswords.includes(password.toLowerCase())) {
+      setPasswordError('このパスワードは一般的すぎるため使用できません');
       return false;
     }
     
@@ -123,9 +147,17 @@ const RegisterForm = ({ onSuccess, isAdminForm = false }: RegisterFormProps) => 
             required
             placeholder="********"
           />
-          <p className="text-gray-600 text-xs italic mt-1">
-            8文字以上で、大文字、小文字、数字を含めてください
-          </p>
+          <PasswordStrengthMeter password={password} />
+          <div className="mt-2 text-xs text-gray-500">
+            <p>パスワードは以下の条件を満たす必要があります：</p>
+            <ul className="list-disc pl-5 mt-1">
+              <li>8文字以上</li>
+              <li>大文字を1文字以上</li>
+              <li>小文字を1文字以上</li>
+              <li>数字を1文字以上</li>
+              <li>特殊文字を1文字以上</li>
+            </ul>
+          </div>
         </div>
 
         <div className="mb-6">

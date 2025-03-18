@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../hooks/useAuth';
+import PasswordStrengthMeter from '../common/PasswordStrengthMeter';
 
 interface PasswordChangeFormProps {
   onSuccess?: () => void;
@@ -36,8 +37,36 @@ const PasswordChangeForm: React.FC<PasswordChangeFormProps> = ({ onSuccess }) =>
       return;
     }
     
-    if (newPassword.length < 6) {
-      setError('新しいパスワードは6文字以上である必要があります');
+    if (newPassword.length < 8) {
+      setError('新しいパスワードは8文字以上である必要があります');
+      return;
+    }
+    
+    // 強化されたパスワード検証
+    if (!/[A-Z]/.test(newPassword)) {
+      setError('パスワードには少なくとも1つの大文字を含める必要があります');
+      return;
+    }
+    
+    if (!/[a-z]/.test(newPassword)) {
+      setError('パスワードには少なくとも1つの小文字を含める必要があります');
+      return;
+    }
+    
+    if (!/[0-9]/.test(newPassword)) {
+      setError('パスワードには少なくとも1つの数字を含める必要があります');
+      return;
+    }
+    
+    if (!/[^A-Za-z0-9]/.test(newPassword)) {
+      setError('パスワードには少なくとも1つの特殊文字を含める必要があります');
+      return;
+    }
+    
+    // 一般的なパスワードのチェック
+    const commonPasswords = ['password', 'password123', '123456', 'qwerty', 'admin'];
+    if (commonPasswords.includes(newPassword.toLowerCase())) {
+      setError('このパスワードは一般的すぎるため使用できません');
       return;
     }
     
@@ -89,9 +118,19 @@ const PasswordChangeForm: React.FC<PasswordChangeFormProps> = ({ onSuccess }) =>
             onChange={(e) => setNewPassword(e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
-            minLength={6}
+            minLength={8}
           />
-          <p className="mt-1 text-xs text-gray-500">6文字以上で入力してください</p>
+          <PasswordStrengthMeter password={newPassword} />
+          <div className="mt-2 text-xs text-gray-500">
+            <p>パスワードは以下の条件を満たす必要があります：</p>
+            <ul className="list-disc pl-5 mt-1">
+              <li>8文字以上</li>
+              <li>大文字を1文字以上</li>
+              <li>小文字を1文字以上</li>
+              <li>数字を1文字以上</li>
+              <li>特殊文字を1文字以上</li>
+            </ul>
+          </div>
         </div>
         
         <div className="mb-4">

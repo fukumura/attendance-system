@@ -5,6 +5,7 @@ import jwt from 'jsonwebtoken';
 import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
 import { emailService } from '../services/emailService';
+import { passwordSchema } from '../utils/passwordUtils';
 
 // 入力バリデーションスキーマ
 const profileUpdateSchema = z.object({
@@ -14,12 +15,12 @@ const profileUpdateSchema = z.object({
 
 const passwordChangeSchema = z.object({
   currentPassword: z.string().min(1, '現在のパスワードは必須です'),
-  newPassword: z.string().min(6, '新しいパスワードは6文字以上である必要があります'),
+  newPassword: passwordSchema,
 });
 
 const registerSchema = z.object({
   email: z.string().email('有効なメールアドレスを入力してください'),
-  password: z.string().min(6, 'パスワードは6文字以上である必要があります'),
+  password: passwordSchema,
   name: z.string().min(1, '名前は必須です'),
 });
 
