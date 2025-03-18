@@ -7,7 +7,7 @@
       "source": "/(.*)",
       "headers": [
         { "key": "Access-Control-Allow-Credentials", "value": "true" },
-        { "key": "Access-Control-Allow-Origin", "value": "https://api.pocket-kintai.com" },
+        { "key": "Access-Control-Allow-Origin", "value": "https://pocket-kintai.com" },
         { "key": "Access-Control-Allow-Methods", "value": "GET,OPTIONS,PATCH,DELETE,POST,PUT" },
         { "key": "Access-Control-Allow-Headers", "value": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization, X-Company-ID" },
         { "key": "Access-Control-Max-Age", "value": "86400" }
@@ -23,7 +23,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://api.pocket-kintai.com/api/:path*"
+      "destination": "https://api.pocket-kintai.com/:path*"
     },
     {
       "source": "/(.*)",
