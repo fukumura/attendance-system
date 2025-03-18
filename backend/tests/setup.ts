@@ -1,6 +1,7 @@
 // Jest setup file
 import { PrismaClient } from '@prisma/client';
 import { DeepMockProxy, mockDeep, mockReset } from 'jest-mock-extended';
+import { jest, beforeEach } from '@jest/globals';
 
 // Create a mock instance of PrismaClient
 export const prismaMock = mockDeep<PrismaClient>() as unknown as DeepMockProxy<PrismaClient>;

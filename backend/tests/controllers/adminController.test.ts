@@ -2,6 +2,7 @@ import { prismaMock } from '../utils/testUtils';
 import { mockRequest, mockAdminRequest, mockSuperAdminRequest, mockResponse } from '../utils/testUtils';
 import { adminController } from '../../src/controllers/adminController';
 import bcrypt from 'bcryptjs';
+import { jest, beforeEach, describe, it, expect } from '@jest/globals';
 
 // モジュールのモック化
 jest.mock('../../src/app', () => ({

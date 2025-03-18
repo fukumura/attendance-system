@@ -1,6 +1,7 @@
 import { prismaMock } from '../utils/testUtils';
 import { mockRequest, mockAdminRequest, mockResponse } from '../utils/testUtils';
 import { reportController } from '../../src/controllers/reportController';
+import { jest, beforeEach, describe, it, expect } from '@jest/globals';
 
 // モジュールのモック化
 jest.mock('../../src/app', () => ({

@@ -8,6 +8,8 @@
     "dev": "nodemon --exec ts-node src/server.ts",
     "build": "tsc",
     "test": "jest",
+    "test:simple": "node tests/simple-test.js",
+    "test:all": "node run-tests.js",
     "test:email": "ts-node src/tests/emailTest.ts",
     "lint": "eslint . --ext .ts",
     "prisma:generate": "prisma generate",
@@ -51,7 +53,7 @@
     "nodemon": "^2.0.22",
     "prettier": "^2.x",
     "prisma": "^4.x",
-    "ts-jest": "^29.x",
+    "ts-jest": "^29.2.6",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.2"
   }

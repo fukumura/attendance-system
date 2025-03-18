@@ -160,8 +160,15 @@ attendance-system/
 
 ```bash
 cd backend
+# すべてのシンプルテストを実行 | Run all simple tests
+npm run test:all
+
+# Jest テストを実行 (開発中) | Run Jest tests (in development)
 npm test
 ```
+
+詳細なテスト情報は [backend/tests/README.md](backend/tests/README.md) を参照してください。
+*For detailed testing information, refer to [backend/tests/README.md](backend/tests/README.md).*
 
 ### フロントエンドテスト | Frontend Tests
 

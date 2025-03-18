@@ -2,6 +2,7 @@ import { authController } from '../../src/controllers/authController';
 import { mockRequest, mockResponse, prismaMock } from '../utils/testUtils';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { jest, beforeEach, afterEach, describe, it, expect } from '@jest/globals';
 
 // Mock bcrypt and jwt
 jest.mock('bcryptjs');
