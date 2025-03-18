@@ -3,6 +3,7 @@ import { useState, FormEvent, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { useAuthStore } from '../../store/authStore';
+import PasswordStrengthMeter from '../common/PasswordStrengthMeter';
 
 // メールアドレスのバリデーション用正規表現
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -44,6 +45,22 @@ const LoginForm = () => {
     }
     if (password.length < 8) {
       setPasswordError('パスワードは8文字以上で入力してください');
+      return false;
+    }
+    if (!/[A-Z]/.test(password)) {
+      setPasswordError('パスワードには少なくとも1つの大文字を含める必要があります');
+      return false;
+    }
+    if (!/[a-z]/.test(password)) {
+      setPasswordError('パスワードには少なくとも1つの小文字を含める必要があります');
+      return false;
+    }
+    if (!/[0-9]/.test(password)) {
+      setPasswordError('パスワードには少なくとも1つの数字を含める必要があります');
+      return false;
+    }
+    if (!/[^A-Za-z0-9]/.test(password)) {
+      setPasswordError('パスワードには少なくとも1つの特殊文字を含める必要があります');
       return false;
     }
     setPasswordError(null);
@@ -141,14 +158,27 @@ const LoginForm = () => {
                 <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
               </svg>
             </div>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={handlePasswordChange}
-              className={`pl-10 w-full px-4 py-3 border ${passwordError ? 'border-red-500 ring-1 ring-red-500' : 'border-gray-300'} rounded-lg focus:ring-primary-500 focus:border-primary-500 block shadow-sm`}
-              placeholder="••••••••"
-            />
+          <input
+            type="password"
+            id="password"
+            value={password}
+            onChange={handlePasswordChange}
+            className={`pl-10 w-full px-4 py-3 border ${passwordError ? 'border-red-500 ring-1 ring-red-500' : 'border-gray-300'} rounded-lg focus:ring-primary-500 focus:border-primary-500 block shadow-sm`}
+            placeholder="••••••••"
+          />
+          <PasswordStrengthMeter password={password} />
+          
+          {/* パスワード要件の説明 */}
+          <div className="mt-2 text-xs text-gray-500">
+            <p>パスワードは以下の条件を満たす必要があります：</p>
+            <ul className="list-disc pl-5 mt-1">
+              <li>8文字以上</li>
+              <li>大文字を1文字以上</li>
+              <li>小文字を1文字以上</li>
+              <li>数字を1文字以上</li>
+              <li>特殊文字を1文字以上</li>
+            </ul>
+          </div>
           </div>
           {passwordError && (
             <div className="mt-2 flex items-start">
