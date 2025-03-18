@@ -25,7 +25,7 @@ RUN npx prisma generate
 RUN npm run build
 
 # CORS関連の環境変数を設定
-ENV CORS_ORIGIN="*"
+ENV CORS_ORIGIN="https://pocket-kintai.com"
 ENV CORS_METHODS="GET,POST,PUT,DELETE,OPTIONS,PATCH"
 ENV CORS_ALLOWED_HEADERS="Content-Type,Authorization,X-Company-ID,X-Requested-With,Origin,Accept,Access-Control-Allow-Headers"
 ENV CORS_CREDENTIALS="true"

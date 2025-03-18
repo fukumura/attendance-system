@@ -43,7 +43,7 @@ export interface AttendanceRecordsResponse {
 // API基本設定
 // 開発環境ではプロキシを使用し、本番環境では環境変数を使用
 const isDevelopment = import.meta.env.DEV;
-const API_URL = isDevelopment ? '' : (import.meta.env.VITE_API_URL || 'http://localhost:5000');
+const API_URL = isDevelopment ? '' : (import.meta.env.VITE_API_URL || 'https://api.pocket-kintai.com');
 
 // APIクライアントの作成
 const api = axios.create({
@@ -53,6 +53,9 @@ const api = axios.create({
   },
   withCredentials: true, // CORSリクエストでクッキーを送信
 });
+
+// デバッグ用にAPIのURLをログに出力
+console.log('API URL:', API_URL);
 
 // リクエストインターセプター - 認証トークンと企業IDの追加
 api.interceptors.request.use(
