@@ -119,6 +119,7 @@ export const adminController = {
           email: true,
           name: true,
           role: true,
+          companyId: true,
           createdAt: true,
           updatedAt: true,
         },
@@ -177,6 +178,7 @@ export const adminController = {
           email: true,
           name: true,
           role: true,
+          companyId: true,
           createdAt: true,
           updatedAt: true,
         },
@@ -297,6 +299,12 @@ export const adminController = {
       
       if (validatedData.role) {
         updateData.role = validatedData.role;
+      }
+      
+      // companyIdが明示的に指定されている場合（undefinedでない場合）
+      if (validatedData.companyId !== undefined) {
+        // companyIdが空文字列の場合はnullに設定（企業所属解除）
+        updateData.companyId = validatedData.companyId === '' ? null : validatedData.companyId;
       }
       
       // ユーザーの更新
