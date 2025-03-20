@@ -159,6 +159,57 @@ export const useAuth = () => {
       setIsSubmitting(false);
     }
   };
+  
+  // 企業情報更新
+  const handleCompanyUpdate = async (companyId: string | null) => {
+    setIsSubmitting(true);
+    setError(null);
+    
+    try {
+      // ユーザーIDを取得
+      const userId = useAuthStore.getState().user?.id;
+      if (!userId) {
+        setError('ユーザー情報が見つかりません');
+        return false;
+      }
+      
+      // 管理者APIを使用してユーザーの企業を更新
+      // companyIdがnullの場合はundefinedに変換（APIの型に合わせる）
+      const response = await adminApi.updateUser(userId, { 
+        companyId: companyId === null ? undefined : companyId 
+      });
+      if (response.status === 'success') {
+        // ユーザー情報を更新
+        setUser(response.data);
+        
+        // 企業情報を取得して更新
+        if (companyId) {
+          try {
+            const companyResponse = await companyApi.getCompany(companyId);
+            if (companyResponse.status === 'success') {
+              useAuthStore.getState().setCompany(companyResponse.data);
+            }
+          } catch (companyError) {
+            console.error('企業情報の取得に失敗しました:', companyError);
+          }
+        } else {
+          // 企業が選択されていない場合は企業情報をクリア
+          useAuthStore.getState().setCompany(null);
+        }
+        
+        return true;
+      }
+      return false;
+    } catch (error: any) {
+      // エラーメッセージの設定
+      const errorMessage =
+        error.response?.data?.message || '企業情報更新中にエラーが発生しました';
+      setError(errorMessage);
+      return false;
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   // パスワード変更
   const handlePasswordChange = async (currentPassword: string, newPassword: string) => {
@@ -191,5 +242,6 @@ export const useAuth = () => {
     fetchCurrentUser,
     handleProfileUpdate,
     handlePasswordChange,
+    handleCompanyUpdate,
   };
 };
