@@ -31,7 +31,7 @@ describe('Auth Controller', () => {
         body: {
           name: 'Test User',
           email: 'test@example.com',
-          password: 'password123',
+          password: 'Password123!',
         },
       });
 
@@ -55,6 +55,9 @@ describe('Auth Controller', () => {
         companyId: null,
         createdAt: new Date(),
         updatedAt: new Date(),
+        isEmailVerified: true,
+        verificationToken: null,
+        verificationTokenExpiry: null,
       };
 
       prismaMock.user.findFirst.mockResolvedValue(null); // No existing user
@@ -64,7 +67,7 @@ describe('Auth Controller', () => {
       await authController.register(req, res);
 
       // Assert
-      expect(bcrypt.hash).toHaveBeenCalledWith('password123', 10);
+      expect(bcrypt.hash).toHaveBeenCalledWith('Password123!', 10);
       expect(prismaMock.user.findFirst).toHaveBeenCalledWith({
         where: { email: 'test@example.com' },
       });
@@ -74,29 +77,23 @@ describe('Auth Controller', () => {
           email: 'test@example.com',
           password: 'hashed_password',
           role: 'EMPLOYEE',
+          isEmailVerified: false,
+          verificationToken: expect.any(String),
+          verificationTokenExpiry: expect.any(Date),
         },
       });
       
-      expect(jwt.sign).toHaveBeenCalledWith(
-        { userId: mockUser.id, companyId: null, role: mockUser.role },
-        'test-secret',
-        { expiresIn: '24h' }
-      );
-
       expect(res.status).toHaveBeenCalledWith(201);
       expect(res.json).toHaveBeenCalledWith({
         status: 'success',
+        message: 'ユーザーが作成され、認証メールが送信されました',
         data: {
-          user: {
+          user: expect.objectContaining({
             id: mockUser.id,
             name: mockUser.name,
             email: mockUser.email,
             role: mockUser.role,
-            companyId: null,
-            createdAt: expect.any(Date),
-            updatedAt: expect.any(Date),
-          },
-          token: 'mock_token',
+          }),
         },
       });
     });
@@ -107,7 +104,7 @@ describe('Auth Controller', () => {
         body: {
           name: 'Test User',
           email: 'existing@example.com',
-          password: 'password123',
+          password: 'Password123!',
         },
       });
 
@@ -145,7 +142,7 @@ describe('Auth Controller', () => {
         body: {
           name: 'Test User',
           // Missing email
-          password: 'password123',
+          password: 'Password123!',
         },
       });
 
@@ -170,7 +167,7 @@ describe('Auth Controller', () => {
         body: {
           name: 'Test User',
           email: 'test@example.com',
-          password: 'password123',
+          password: 'Password123!',
         },
       });
 
@@ -204,7 +201,7 @@ describe('Auth Controller', () => {
       const req = mockRequest({
         body: {
           email: 'test@example.com',
-          password: 'password123',
+          password: 'Password123!',
         },
       });
 
@@ -220,6 +217,7 @@ describe('Auth Controller', () => {
         companyId: null,
         createdAt: new Date(),
         updatedAt: new Date(),
+        isEmailVerified: true,
       };
 
       prismaMock.user.findFirst.mockResolvedValue(mockUser as any);
@@ -239,7 +237,7 @@ describe('Auth Controller', () => {
       expect(prismaMock.user.findFirst).toHaveBeenCalledWith({
         where: { email: 'test@example.com' },
       });
-      expect(bcrypt.compare).toHaveBeenCalledWith('password123', 'hashed_password');
+      expect(bcrypt.compare).toHaveBeenCalledWith('Password123!', 'hashed_password');
       expect(jwt.sign).toHaveBeenCalledWith(
         { userId: mockUser.id, companyId: null, role: mockUser.role },
         'test-secret',
@@ -264,12 +262,12 @@ describe('Auth Controller', () => {
       });
     });
 
-    it('should return 401 with invalid credentials', async () => {
+    it('should return 403 if email is not verified', async () => {
       // Arrange
       const req = mockRequest({
         body: {
           email: 'test@example.com',
-          password: 'wrong_password',
+          password: 'Password123!',
         },
       });
 
@@ -285,6 +283,50 @@ describe('Auth Controller', () => {
         companyId: null,
         createdAt: new Date(),
         updatedAt: new Date(),
+        isEmailVerified: false,
+      };
+
+      prismaMock.user.findFirst.mockResolvedValue(mockUser as any);
+
+      // Mock password comparison
+      (bcrypt.compare as jest.Mock).mockResolvedValue(true);
+
+      // Act
+      await authController.login(req, res);
+
+      // Assert
+      expect(jwt.sign).not.toHaveBeenCalled();
+      expect(res.status).toHaveBeenCalledWith(403);
+      expect(res.json).toHaveBeenCalledWith({
+        status: 'error',
+        message: 'メールアドレスが認証されていません。認証メールを確認してください。',
+        needsVerification: true,
+        email: mockUser.email,
+      });
+    });
+
+    it('should return 401 with invalid credentials', async () => {
+      // Arrange
+      const req = mockRequest({
+        body: {
+          email: 'test@example.com',
+          password: 'WrongPassword123!',
+        },
+      });
+
+      const res = mockResponse();
+
+      // Mock user retrieval
+      const mockUser = {
+        id: 'user-id',
+        name: 'Test User',
+        email: 'test@example.com',
+        password: 'hashed_password',
+        role: 'EMPLOYEE',
+        companyId: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        isEmailVerified: true,
       };
 
       prismaMock.user.findFirst.mockResolvedValue(mockUser as any);
@@ -296,7 +338,7 @@ describe('Auth Controller', () => {
       await authController.login(req, res);
 
       // Assert
-      expect(bcrypt.compare).toHaveBeenCalledWith('wrong_password', 'hashed_password');
+      expect(bcrypt.compare).toHaveBeenCalledWith('WrongPassword123!', 'hashed_password');
       expect(jwt.sign).not.toHaveBeenCalled();
       expect(res.status).toHaveBeenCalledWith(401);
       expect(res.json).toHaveBeenCalledWith({
@@ -310,7 +352,7 @@ describe('Auth Controller', () => {
       const req = mockRequest({
         body: {
           email: 'nonexistent@example.com',
-          password: 'password123',
+          password: 'Password123!',
         },
       });
 
@@ -337,7 +379,7 @@ describe('Auth Controller', () => {
       const req = mockRequest({
         body: {
           // Missing email
-          password: 'password123',
+          password: 'Password123!',
         },
       });
 
@@ -360,7 +402,7 @@ describe('Auth Controller', () => {
       const req = mockRequest({
         body: {
           email: 'test@example.com',
-          password: 'password123',
+          password: 'Password123!',
         },
       });
 
@@ -409,7 +451,7 @@ describe('Auth Controller', () => {
 
       // Assert
       expect(prismaMock.user.findUnique).toHaveBeenCalledWith({
-        where: { id: req.user?.id },
+        where: { id: req.user?.id }
       });
 
       expect(res.status).toHaveBeenCalledWith(200);
@@ -609,8 +651,8 @@ describe('Auth Controller', () => {
       // Arrange
       const req = mockRequest({
         body: {
-          currentPassword: 'current_password',
-          newPassword: 'new_password',
+          currentPassword: 'CurrentPassword123!',
+          newPassword: 'NewPassword123!',
         },
       });
 
@@ -635,15 +677,15 @@ describe('Auth Controller', () => {
 
       // Assert
       expect(prismaMock.user.findUnique).toHaveBeenCalledWith({
-        where: { id: req.user?.id },
+        where: { id: req.user?.id }
       });
 
       expect(bcrypt.compare).toHaveBeenCalledWith(
-        'current_password',
+        'CurrentPassword123!',
         'hashed_current_password'
       );
 
-      expect(bcrypt.hash).toHaveBeenCalledWith('new_password', 10);
+      expect(bcrypt.hash).toHaveBeenCalledWith('NewPassword123!', 10);
 
       expect(prismaMock.user.update).toHaveBeenCalledWith({
         where: { id: req.user?.id },
@@ -663,8 +705,8 @@ describe('Auth Controller', () => {
       // Arrange
       const req = mockRequest({
         body: {
-          currentPassword: 'wrong_password',
-          newPassword: 'new_password',
+          currentPassword: 'WrongPassword123!',
+          newPassword: 'NewPassword123!',
         },
       });
 
@@ -699,8 +741,8 @@ describe('Auth Controller', () => {
       const req = mockRequest({
         user: undefined,
         body: {
-          currentPassword: 'current_password',
-          newPassword: 'new_password',
+          currentPassword: 'CurrentPassword123!',
+          newPassword: 'NewPassword123!',
         },
       });
 
@@ -722,8 +764,8 @@ describe('Auth Controller', () => {
       // Arrange
       const req = mockRequest({
         body: {
-          currentPassword: 'current_password',
-          newPassword: 'new_password',
+          currentPassword: 'CurrentPassword123!',
+          newPassword: 'NewPassword123!',
         },
       });
 
@@ -752,7 +794,7 @@ describe('Auth Controller', () => {
         body: {
           name: 'Admin User',
           email: 'admin@example.com',
-          password: 'admin_password',
+          password: 'AdminPassword123!',
         },
       });
 
@@ -789,7 +831,7 @@ describe('Auth Controller', () => {
 
       // Assert
       expect(prismaMock.user.findFirst).toHaveBeenCalledWith({
-        where: { role: 'ADMIN' },
+        where: { role: 'ADMIN' }
       });
 
       expect(prismaMock.user.create).toHaveBeenCalledWith({
@@ -831,7 +873,7 @@ describe('Auth Controller', () => {
         body: {
           name: 'Admin User',
           email: 'admin@example.com',
-          password: 'admin_password',
+          password: 'AdminPassword123!',
         },
       });
 

@@ -4,7 +4,7 @@ const path = require('path');
 
 // Get all test files
 const testDir = path.join(__dirname, 'tests');
-const controllerTestDir = path.join(testDir, 'controllers');
+const examplesDir = path.join(testDir, 'examples');
 
 // Function to run a test file
 function runTest(filePath) {
@@ -23,13 +23,13 @@ function runTest(filePath) {
 
 // Run all simple tests
 console.log('Running simple tests...');
-const simpleTestPassed = runTest(path.join(testDir, 'simple-test.js'));
-const authControllerTestPassed = runTest(path.join(controllerTestDir, 'authController.simple.test.js'));
-const reportControllerTestPassed = runTest(path.join(controllerTestDir, 'reportController.simple.test.js'));
-const attendanceControllerTestPassed = runTest(path.join(controllerTestDir, 'attendanceController.simple.test.js'));
-const leaveControllerTestPassed = runTest(path.join(controllerTestDir, 'leaveController.simple.test.js'));
-const adminControllerTestPassed = runTest(path.join(controllerTestDir, 'adminController.simple.test.js'));
-const companyControllerTestPassed = runTest(path.join(controllerTestDir, 'companyController.simple.test.js'));
+const simpleTestPassed = runTest(path.join(examplesDir, 'simple-test.js'));
+const authControllerTestPassed = runTest(path.join(examplesDir, 'authController.simple.test.js'));
+const reportControllerTestPassed = runTest(path.join(examplesDir, 'reportController.simple.test.js'));
+const attendanceControllerTestPassed = runTest(path.join(examplesDir, 'attendanceController.simple.test.js'));
+const leaveControllerTestPassed = runTest(path.join(examplesDir, 'leaveController.simple.test.js'));
+const adminControllerTestPassed = runTest(path.join(examplesDir, 'adminController.simple.test.js'));
+const companyControllerTestPassed = runTest(path.join(examplesDir, 'companyController.simple.test.js'));
 
 // Exit with appropriate code
 const allTestsPassed = simpleTestPassed && 

@@ -1,6 +1,6 @@
 module.exports = {
   testEnvironment: 'node',
-  testMatch: ['**/tests/simple*.test.ts'],
+  testMatch: ['**/tests/examples/simple*.test.ts'],
   transform: {
     '^.+\\.(ts|js)$': 'babel-jest',
   },

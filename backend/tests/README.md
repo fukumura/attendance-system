@@ -1,43 +1,59 @@
 # テスト実行方法
 
-このプロジェクトでは、以下の方法でテストを実行できます。
+このプロジェクトでは、Jest を使用してテストを実行します。
 
-## シンプルテスト
-
-シンプルテストは、Jest を使わずに Node.js で直接実行できるテストです。各コントローラーの基本的な機能をテストします。
-
-```bash
-# すべてのシンプルテストを実行
-npm run test:all
-
-# 特定のシンプルテストを実行
-node tests/simple-test.js
-node tests/controllers/authController.simple.test.js
-```
-
-## Jest テスト
-
-Jest を使ったテストは、現在開発中です。将来的には以下のコマンドで実行できるようになります。
+## テスト実行コマンド
 
 ```bash
 # すべてのテストを実行
 npm test
 
-# 特定のテストファイルを実行
-npx jest tests/controllers/authController.test.ts
+# ユニットテストのみ実行
+npm run test:unit
+
+# 統合テストのみ実行
+npm run test:integration
+
+# テストカバレッジレポートを生成
+npm run test:coverage
+
+# ウォッチモードでテストを実行（ファイル変更時に自動実行）
+npm run test:watch
+
+# 特定のテストファイルを実行（例：メールサービス）
+npm run test:email
 ```
 
-## テストファイルの構成
+## テストディレクトリ構造
 
-- `tests/simple-test.js` - 基本的なテスト
-- `tests/controllers/*.simple.test.js` - 各コントローラーのシンプルテスト
-- `tests/controllers/*.test.ts` - 各コントローラーの Jest テスト（開発中）
+```
+tests/
+├── unit/                     # 単体テスト
+│   ├── controllers/          # コントローラーのテスト
+│   ├── services/             # サービスのテスト
+│   ├── utils/                # ユーティリティのテスト
+│   └── middlewares/          # ミドルウェアのテスト
+├── integration/              # 統合テスト
+│   ├── api/                  # APIエンドポイントのテスト
+│   └── services/             # サービス統合テスト
+├── e2e/                      # エンドツーエンドテスト（将来用）
+├── examples/                 # サンプルテスト
+│   ├── simple-test.js        # 基本的なテスト例
+│   ├── simple.test.ts        # TypeScriptテスト例
+│   └── *.simple.test.js      # シンプルなコントローラーテスト例
+├── utils/                    # テスト用ユーティリティ
+│   ├── testUtils.ts          # 共通テストユーティリティ
+│   └── mocks.ts              # モックオブジェクト（将来用）
+└── setup.ts                  # Jestセットアップファイル
+```
 
 ## テスト開発ガイドライン
 
 新しいテストを追加する場合は、以下のガイドラインに従ってください。
 
-1. シンプルテストは `.simple.test.js` という拡張子を使用
-2. Jest テストは `.test.ts` という拡張子を使用
-3. テストファイルは対応するコントローラーと同じ名前を使用
-4. テスト関数は明確な名前を使用（例: `testAuthController`）
+1. テストファイルは `.test.ts` という拡張子を使用
+2. テストファイルは対応するソースファイルと同じ名前を使用（例：`authController.ts` → `authController.test.ts`）
+3. テストは適切なディレクトリに配置（単体テストは `unit/` 内、統合テストは `integration/` 内）
+4. テスト関数は明確な名前を使用（例：「should register a new user successfully」）
+5. 各テストは独立して実行できるようにする（他のテストに依存しない）
+6. モックやスタブを使用して外部依存関係を分離する
