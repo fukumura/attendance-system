@@ -27,6 +27,13 @@ const AdminDashboardPage = () => {
             <p className="text-gray-600">勤怠や休暇のレポートを確認します</p>
           </Link>
           <Link
+            to="/reports/company"
+            className="bg-orange-50 rounded-lg p-6 hover:bg-orange-100 transition-colors"
+          >
+            <h3 className="text-lg font-medium mb-2 text-orange-700">コンプライアンスレポート</h3>
+            <p className="text-gray-600">会社全体の労務コンプライアンス状況を確認します</p>
+          </Link>
+          <Link
             to="/admin/companies"
             className="bg-indigo-50 rounded-lg p-6 hover:bg-indigo-100 transition-colors"
           >

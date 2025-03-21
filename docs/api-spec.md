@@ -671,6 +671,206 @@
   }
   ```
 
+### コンプライアンスレポートAPI
+
+#### 会社全体のコンプライアンスレポート取得
+- **エンドポイント**: `GET /reports/compliance/company`
+- **説明**: 会社全体の労務コンプライアンスレポートを取得（管理者のみ）
+- **認証**: 必須（管理者権限）
+- **クエリパラメータ**:
+  - `year`: 年（YYYY）
+  - `month`: 月（MM）
+- **レスポンス**:
+  ```json
+  {
+    "status": "success",
+    "data": {
+      "period": {
+        "year": 2025,
+        "month": 3,
+        "startDate": "2025-03-01",
+        "endDate": "2025-03-31"
+      },
+      "companySummary": {
+        "totalUsers": 15,
+        "activeUsers": 14
+      },
+      "complianceReport": {
+        "overtimeStatus": {
+          "totalOvertimeHours": 120.5,
+          "averageOvertimeHours": 8.03,
+          "excessiveOvertimeCount": 2,
+          "excessiveOvertimeRate": 13.33,
+          "topOvertimeUsers": [
+            {
+              "userId": "550e8400-e29b-41d4-a716-446655440001",
+              "name": "山田太郎",
+              "overtimeHours": 48.5,
+              "excessDays": 10
+            },
+            {
+              "userId": "550e8400-e29b-41d4-a716-446655440002",
+              "name": "鈴木花子",
+              "overtimeHours": 46.2,
+              "excessDays": 9
+            }
+          ]
+        },
+        "breakTimeStatus": {
+          "totalWorkingDays": 280,
+          "insufficientBreakDays": 15,
+          "breakComplianceRate": 94.64,
+          "insufficientBreakUsers": [
+            {
+              "userId": "550e8400-e29b-41d4-a716-446655440003",
+              "name": "佐藤次郎",
+              "workingDays": 20,
+              "insufficientBreakDays": 8,
+              "breakComplianceRate": 60.0
+            }
+          ]
+        },
+        "holidayWorkStatus": {
+          "totalHolidayWorkDays": 12,
+          "totalHolidayWorkHours": 72.5,
+          "holidayWorkUsers": 3,
+          "holidayWorkRate": 20.0,
+          "topHolidayWorkUsers": [
+            {
+              "userId": "550e8400-e29b-41d4-a716-446655440004",
+              "name": "田中三郎",
+              "holidayWorkDays": 5,
+              "holidayWorkHours": 30.0
+            }
+          ]
+        },
+        "nightWorkStatus": {
+          "totalNightWorkDays": 18,
+          "totalNightWorkHours": 36.5,
+          "nightWorkUsers": 4,
+          "nightWorkRate": 26.67,
+          "topNightWorkUsers": [
+            {
+              "userId": "550e8400-e29b-41d4-a716-446655440005",
+              "name": "伊藤四郎",
+              "nightWorkDays": 6,
+              "nightWorkHours": 12.5
+            }
+          ]
+        },
+        "paidLeaveStatus": {
+          "totalPaidLeaveDays": 45,
+          "averagePaidLeaveDays": 3.0,
+          "targetAchievedUsers": 8,
+          "targetAchievedRate": 53.33,
+          "overallPaidLeaveRate": 60.0,
+          "lowPaidLeaveUsers": [
+            {
+              "userId": "550e8400-e29b-41d4-a716-446655440006",
+              "name": "渡辺五郎",
+              "paidLeaveDays": 1,
+              "paidLeaveTarget": 5,
+              "remainingDays": 4
+            }
+          ]
+        }
+      }
+    }
+  }
+  ```
+
+#### 部門別コンプライアンスレポート取得
+- **エンドポイント**: `GET /reports/compliance/department`
+- **説明**: 部門別の労務コンプライアンスレポートを取得（管理者のみ）
+- **認証**: 必須（管理者権限）
+- **クエリパラメータ**:
+  - `year`: 年（YYYY）
+  - `month`: 月（MM）
+  - `department`: 部門名（オプション）
+- **レスポンス**:
+  ```json
+  {
+    "status": "success",
+    "data": {
+      "period": {
+        "year": 2025,
+        "month": 3,
+        "startDate": "2025-03-01",
+        "endDate": "2025-03-31"
+      },
+      "departmentSummary": {
+        "name": "開発部",
+        "totalUsers": 5,
+        "activeUsers": 5,
+        "overtimeHours": 52.5,
+        "holidayWorkDays": 4,
+        "nightWorkDays": 6,
+        "paidLeaveDays": 15
+      },
+      "userReports": [
+        {
+          "userId": "550e8400-e29b-41d4-a716-446655440007",
+          "name": "山本六郎",
+          "overtimeHours": 12.5,
+          "holidayWorkDays": 1,
+          "nightWorkDays": 2,
+          "paidLeaveDays": 3
+        }
+      ]
+    }
+  }
+  ```
+
+#### ユーザー別コンプライアンスレポート取得
+- **エンドポイント**: `GET /reports/compliance/user/:userId`
+- **説明**: 特定ユーザーの労務コンプライアンスレポートを取得
+- **認証**: 必須（自分自身または管理者）
+- **パスパラメータ**:
+  - `userId`: ユーザーID（UUID）（`me`の場合は自分自身）
+- **クエリパラメータ**:
+  - `year`: 年（YYYY）
+  - `month`: 月（MM）
+- **レスポンス**:
+  ```json
+  {
+    "status": "success",
+    "data": {
+      "userId": "550e8400-e29b-41d4-a716-446655440007",
+      "name": "山本六郎",
+      "period": {
+        "year": 2025,
+        "month": 3,
+        "startDate": "2025-03-01",
+        "endDate": "2025-03-31"
+      },
+      "complianceStatus": {
+        "workingDays": 20,
+        "totalWorkingHours": 168.5,
+        "overtimeHours": 12.5,
+        "excessDays": 3,
+        "holidayWorkDays": 1,
+        "holidayWorkHours": 6.0,
+        "nightWorkDays": 2,
+        "nightWorkHours": 4.5,
+        "insufficientBreakDays": 1,
+        "paidLeaveDays": 3
+      },
+      "complianceIssues": [
+        {
+          "date": "2025-03-10",
+          "issue": "休憩時間不足",
+          "details": "8時間超勤務で休憩60分未満"
+        },
+        {
+          "date": "2025-03-15",
+          "issue": "深夜勤務",
+          "details": "22時以降の勤務（22:00-23:30）"
+        }
+      ]
+    }
+  }
+  ```
+
 ## エラーコード一覧
 
 | エラーコード | 説明 |

@@ -13,6 +13,9 @@ router.get('/user/:userId', reportController.getUserReport);
 // 部門別レポート取得（管理者のみ）
 router.get('/department', requireAdmin, reportController.getDepartmentReport);
 
+// 会社全体のコンプライアンスレポート取得（管理者のみ）
+router.get('/company/compliance', requireAdmin, reportController.getCompanyComplianceReport);
+
 // レポートエクスポート
 router.get('/export', reportController.exportReport);
 
