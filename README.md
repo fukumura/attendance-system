@@ -47,6 +47,12 @@
 - **レポート | Reports**
   - 個人の勤怠レポート | Individual attendance reports
   - 部門別の勤怠レポート | Department-wise attendance reports
+  - コンプライアンスレポート | Compliance reports
+    - 残業時間監視 | Overtime monitoring
+    - 休憩取得状況 | Break time compliance
+    - 休日労働監視 | Holiday work monitoring
+    - 深夜労働監視 | Night work monitoring
+    - 有給休暇取得状況 | Paid leave usage tracking
   - レポートのエクスポート | Export reports
 
 ## 技術スタック | Tech Stack

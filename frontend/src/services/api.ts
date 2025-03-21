@@ -3,7 +3,7 @@ import { useAuthStore, User } from '../store/authStore';
 import { Task, TaskFilters, ApiResponse, TasksResponse } from '../store/taskStore';
 import { AttendanceRecord, AttendanceStatus, AttendanceSummary } from '../store/attendanceStore';
 import { LeaveRequest, LeaveRequestsResponse, LeaveType, LeaveStatus } from '../store/leaveStore';
-import { UserReport, DepartmentReport } from '../store/reportStore';
+import { UserReport, DepartmentReport, CompanyComplianceReport } from '../store/reportStore';
 
 // 認証レスポンスの型定義
 export interface AuthResponse {
@@ -210,6 +210,12 @@ export const reportApi = {
   // 部門別レポート取得（管理者のみ）
   getDepartmentReport: async (params: { year: number; month: number }): Promise<ApiResponse<DepartmentReport>> => {
     const response = await api.get('/api/reports/department', { params });
+    return response.data;
+  },
+  
+  // 会社全体のコンプライアンスレポート取得（管理者のみ）
+  getCompanyComplianceReport: async (params: { year: number; month: number }): Promise<ApiResponse<CompanyComplianceReport>> => {
+    const response = await api.get('/api/reports/company/compliance', { params });
     return response.data;
   },
   

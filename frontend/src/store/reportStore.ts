@@ -81,16 +81,107 @@ export interface DepartmentReport {
   }[];
 }
 
+// 会社コンプライアンスレポートの型定義
+export interface CompanyComplianceReport {
+  period: {
+    year: number;
+    month: number;
+    startDate: string;
+    endDate: string;
+  };
+  companySummary: {
+    totalUsers: number;
+    activeUsers: number;
+  };
+  complianceReport: {
+    overtimeStatus: {
+      totalOvertimeHours: number;
+      averageOvertimeHours: number;
+      excessiveOvertimeCount: number;
+      excessiveOvertimeRate: number;
+      topOvertimeUsers: {
+        userId: string;
+        name: string;
+        email: string;
+        role: string;
+        overtimeHours: number;
+        excessDays: number;
+      }[];
+    };
+    breakTimeStatus: {
+      totalWorkingDays: number;
+      insufficientBreakDays: number;
+      breakComplianceRate: number;
+      insufficientBreakUsers: {
+        userId: string;
+        name: string;
+        email: string;
+        role: string;
+        workingDays: number;
+        insufficientBreakDays: number;
+        breakComplianceRate: number;
+      }[];
+    };
+    holidayWorkStatus: {
+      totalHolidayWorkDays: number;
+      totalHolidayWorkHours: number;
+      holidayWorkUsers: number;
+      holidayWorkRate: number;
+      topHolidayWorkUsers: {
+        userId: string;
+        name: string;
+        email: string;
+        role: string;
+        holidayWorkDays: number;
+        holidayWorkHours: number;
+      }[];
+    };
+    nightWorkStatus: {
+      totalNightWorkDays: number;
+      totalNightWorkHours: number;
+      nightWorkUsers: number;
+      nightWorkRate: number;
+      topNightWorkUsers: {
+        userId: string;
+        name: string;
+        email: string;
+        role: string;
+        nightWorkDays: number;
+        nightWorkHours: number;
+      }[];
+    };
+    paidLeaveStatus: {
+      totalPaidLeaveDays: number;
+      averagePaidLeaveDays: number;
+      targetAchievedUsers: number;
+      targetAchievedRate: number;
+      overallPaidLeaveRate: number;
+      lowPaidLeaveUsers: {
+        userId: string;
+        name: string;
+        email: string;
+        role: string;
+        paidLeaveDays: number;
+        paidLeaveTarget: number;
+        remainingDays: number;
+        paidLeaveRate: number;
+      }[];
+    };
+  };
+}
+
 // レポートストアの型定義
 interface ReportState {
   userReport: UserReport | null;
   departmentReport: DepartmentReport | null;
+  companyComplianceReport: CompanyComplianceReport | null;
   isLoading: boolean;
   error: string | null;
   
   // アクション
   fetchUserReport: (userId: string, params: { year: number; month: number }) => Promise<void>;
   fetchDepartmentReport: (params: { year: number; month: number }) => Promise<void>;
+  fetchCompanyComplianceReport: (params: { year: number; month: number }) => Promise<void>;
   exportReport: (params: { userId: string; year: number; month: number; type: 'attendance' | 'leave' }) => Promise<void>;
   
   // ユーティリティ
@@ -102,6 +193,7 @@ interface ReportState {
 export const useReportStore = create<ReportState>((set, get) => ({
   userReport: null,
   departmentReport: null,
+  companyComplianceReport: null,
   isLoading: false,
   error: null,
   
@@ -143,6 +235,25 @@ export const useReportStore = create<ReportState>((set, get) => ({
     }
   },
   
+  // 会社全体のコンプライアンスレポート取得（管理者のみ）
+  fetchCompanyComplianceReport: async (params) => {
+    set({ isLoading: true, error: null });
+    try {
+      const response = await reportApi.getCompanyComplianceReport(params);
+      if (response.status === 'success') {
+        set({ companyComplianceReport: response.data });
+      } else {
+        set({ error: response.message || '会社コンプライアンスレポートの取得に失敗しました' });
+      }
+    } catch (error: any) {
+      set({ 
+        error: error.response?.data?.message || '会社コンプライアンスレポートの取得中にエラーが発生しました' 
+      });
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+  
   // レポートエクスポート
   exportReport: async (params) => {
     set({ isLoading: true, error: null });
@@ -164,6 +275,7 @@ export const useReportStore = create<ReportState>((set, get) => ({
   reset: () => set({ 
     userReport: null,
     departmentReport: null,
+    companyComplianceReport: null,
     error: null
   }),
 }));

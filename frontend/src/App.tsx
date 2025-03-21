@@ -3,7 +3,7 @@ import { LoginPage, SetupPage } from './pages/auth';
 import { DashboardPage } from './pages/dashboard';
 import { AttendancePage } from './pages/attendance';
 import { LeavePage } from './pages/leave';
-import { ReportPage } from './pages/report';
+import { ReportPage, CompanyReportPage } from './pages/report';
 import { ProfilePage } from './pages/profile';
 import { AdminDashboardPage, UserManagementPage, CompanyManagementPage, SuperAdminManagementPage } from './pages/admin';
 import { ProtectedRoute, AdminProtectedRoute, SuperAdminProtectedRoute } from './components/auth';
@@ -47,6 +47,11 @@ function App() {
               <ReportPage />
             </Layout>
           </ProtectedRoute>
+        } />
+        <Route path="/reports/company" element={
+          <AdminProtectedRoute>
+            <CompanyReportPage />
+          </AdminProtectedRoute>
         } />
         <Route path="/profile" element={
           <ProtectedRoute>
