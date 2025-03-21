@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { useAuthStore } from '../../store/authStore';
+import { useAuthStore, Company } from '../../store/authStore';
 import { adminApi, AdminUser } from '../../services/api';
+import { companyApi } from '../../services/companyApi';
 import RegisterForm from '../../components/auth/RegisterForm';
 
 // ユーザー一覧の型定義
@@ -10,6 +11,7 @@ interface UserListItem {
   email: string;
   role: string;
   createdAt: string;
+  companyId?: string | null;
 }
 
 // 編集用ユーザーの型定義
@@ -18,6 +20,7 @@ interface EditUserData {
   email?: string;
   password?: string;
   role?: 'ADMIN' | 'EMPLOYEE';
+  companyId?: string;
 }
 
 const UserManagementPage = () => {
@@ -30,7 +33,10 @@ const UserManagementPage = () => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [editData, setEditData] = useState<EditUserData>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [companies, setCompanies] = useState<Company[]>([]);
+  const [isLoadingCompanies, setIsLoadingCompanies] = useState(false);
   const { token, user: currentUser } = useAuthStore();
+  const isSuperAdmin = currentUser?.role === 'SUPER_ADMIN';
 
   // ユーザー一覧を取得する関数
   const fetchUsers = async () => {
@@ -51,7 +57,8 @@ const UserManagementPage = () => {
             name: user.name,
             email: user.email,
             role: user.role,
-            createdAt: user.createdAt
+            createdAt: user.createdAt,
+            companyId: user.companyId
           }));
           setUsers(userList);
         } else {
@@ -84,15 +91,42 @@ const UserManagementPage = () => {
     });
   };
 
+  // 企業一覧を取得する関数
+  const fetchCompanies = async () => {
+    // スーパー管理者でない場合は何もしない
+    if (!isSuperAdmin) {
+      console.log('スーパー管理者以外は企業一覧を取得できません');
+      return;
+    }
+    
+    setIsLoadingCompanies(true);
+    try {
+      const response = await companyApi.getCompanies();
+      if (response.status === 'success') {
+        setCompanies(response.data);
+      }
+    } catch (error) {
+      console.error('企業一覧の取得に失敗しました:', error);
+    } finally {
+      setIsLoadingCompanies(false);
+    }
+  };
+
   // ユーザー編集を開始する関数
   const handleEditClick = (user: UserListItem) => {
     setSelectedUser(user);
     setEditData({
       name: user.name,
       email: user.email,
-      role: user.role as 'ADMIN' | 'EMPLOYEE'
+      role: user.role as 'ADMIN' | 'EMPLOYEE',
+      companyId: user.companyId || ''
     });
     setShowEditForm(true);
+    
+    // スーパー管理者の場合のみ企業一覧を取得
+    if (isSuperAdmin) {
+      fetchCompanies();
+    }
   };
 
   // ユーザー削除を開始する関数
@@ -242,6 +276,31 @@ const UserManagementPage = () => {
                 <option value="ADMIN">管理者</option>
               </select>
             </div>
+            
+            {/* スーパー管理者の場合のみ企業選択ドロップダウンを表示 */}
+            {isSuperAdmin && (
+              <div>
+                <label htmlFor="companyId" className="block text-sm font-medium text-gray-700">所属企業</label>
+                <select
+                  id="companyId"
+                  name="companyId"
+                  value={editData.companyId || ''}
+                  onChange={handleInputChange}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  disabled={isLoadingCompanies}
+                >
+                  <option value="">-- 企業を選択 --</option>
+                  {companies.map((company) => (
+                    <option key={company.id} value={company.id}>
+                      {company.name}
+                    </option>
+                  ))}
+                </select>
+                {isLoadingCompanies && (
+                  <p className="text-sm text-gray-500 mt-1">企業情報を読み込み中...</p>
+                )}
+              </div>
+            )}
             <div className="flex justify-end space-x-3 pt-4">
               <button
                 onClick={handleEditCancel}

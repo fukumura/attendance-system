@@ -753,6 +753,127 @@ describe('Admin Controller', () => {
         message: 'このメールアドレスは既に使用されています',
       });
     });
+
+    it('スーパー管理者はユーザーの企業を更新できる', async () => {
+      // Arrange
+      const req = mockSuperAdminRequest({
+        params: {
+          id: 'user-id-1',
+        },
+        body: {
+          companyId: 'company-id-456',
+        },
+      });
+
+      const res = mockResponse();
+
+      // Mock user update
+      const updatedUser = {
+        id: 'user-id-1',
+        name: 'User 1',
+        email: 'user1@example.com',
+        password: 'hashed-password',
+        role: 'EMPLOYEE',
+        companyId: 'company-id-456',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      prismaMock.user.update.mockResolvedValue(updatedUser as any);
+
+      // Act
+      await adminController.updateUser(req, res);
+
+      // Assert
+      expect(prismaMock.user.update).toHaveBeenCalledWith({
+        where: { id: 'user-id-1' },
+        data: {
+          companyId: 'company-id-456',
+        },
+      });
+
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({
+        status: 'success',
+        data: expect.objectContaining({
+          id: 'user-id-1',
+          companyId: 'company-id-456',
+        }),
+      });
+    });
+
+    it('一般管理者はユーザーの企業を更新できない', async () => {
+      // Arrange
+      const req = mockAdminRequest({
+        params: {
+          id: 'user-id-1',
+        },
+        body: {
+          companyId: 'company-id-456',
+        },
+      });
+
+      const res = mockResponse();
+
+      // Act
+      await adminController.updateUser(req, res);
+
+      // Assert
+      expect(prismaMock.user.update).not.toHaveBeenCalled();
+      expect(res.status).toHaveBeenCalledWith(403);
+      expect(res.json).toHaveBeenCalledWith({
+        status: 'error',
+        message: 'スーパー管理者のみがユーザーの企業を変更できます',
+      });
+    });
+
+    it('スーパー管理者はユーザーの企業を解除できる', async () => {
+      // Arrange
+      const req = mockSuperAdminRequest({
+        params: {
+          id: 'user-id-1',
+        },
+        body: {
+          companyId: '',
+        },
+      });
+
+      const res = mockResponse();
+
+      // Mock user update
+      const updatedUser = {
+        id: 'user-id-1',
+        name: 'User 1',
+        email: 'user1@example.com',
+        password: 'hashed-password',
+        role: 'EMPLOYEE',
+        companyId: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      prismaMock.user.update.mockResolvedValue(updatedUser as any);
+
+      // Act
+      await adminController.updateUser(req, res);
+
+      // Assert
+      expect(prismaMock.user.update).toHaveBeenCalledWith({
+        where: { id: 'user-id-1' },
+        data: {
+          companyId: null,
+        },
+      });
+
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({
+        status: 'success',
+        data: expect.objectContaining({
+          id: 'user-id-1',
+          companyId: null,
+        }),
+      });
+    });
   });
 
   describe('deleteUser', () => {

@@ -266,6 +266,14 @@ export const adminController = {
       // リクエストボディのバリデーション
       const validatedData = userUpdateSchema.parse(req.body);
       
+      // スーパー管理者以外が企業IDを変更しようとしている場合は拒否
+      if (req.user?.role !== 'SUPER_ADMIN' && validatedData.companyId !== undefined) {
+        return res.status(403).json({
+          status: 'error',
+          message: 'スーパー管理者のみがユーザーの企業を変更できます'
+        });
+      }
+      
       // 更新データの準備
       const updateData: any = {};
       
