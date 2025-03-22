@@ -19,6 +19,14 @@ interface TemplateData {
   [key: string]: any;
 }
 
+// Verification email interface
+interface VerificationEmailParams {
+  to: string;
+  userName: string;
+  verificationToken: string;
+  userId: string;
+}
+
 // Email service
 export const emailService = {
   // Create development transporter using Ethereal Email
@@ -51,8 +59,14 @@ export const emailService = {
   
   // Create production transporter using Amazon SES
   createProdTransport: () => {
+    // Log SES configuration for debugging
+    console.log('SES設定情報:', {
+      region: process.env.AWS_REGION,
+      emailFrom: process.env.EMAIL_FROM || 'noreply@example.com'
+    });
+    
     const sesClient = new SESClient({
-      region: process.env.AWS_REGION || 'ap-northeast-1',
+      region: process.env.AWS_REGION || 'us-east-1', // デフォルトを米国東部リージョンに変更
       credentials: {
         accessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
         secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || ''
@@ -61,31 +75,42 @@ export const emailService = {
     
     return {
       sendMail: async (options: any) => {
-        const params = {
-          Source: options.from,
-          Destination: {
-            ToAddresses: [options.to]
-          },
-          Message: {
-            Subject: {
-              Data: options.subject,
-              Charset: 'UTF-8'
+        try {
+          const params = {
+            Source: options.from,
+            Destination: {
+              ToAddresses: [options.to]
             },
-            Body: {
-              Text: options.text ? {
-                Data: options.text,
+            Message: {
+              Subject: {
+                Data: options.subject,
                 Charset: 'UTF-8'
-              } : undefined,
-              Html: options.html ? {
-                Data: options.html,
-                Charset: 'UTF-8'
-              } : undefined
+              },
+              Body: {
+                Text: options.text ? {
+                  Data: options.text,
+                  Charset: 'UTF-8'
+                } : undefined,
+                Html: options.html ? {
+                  Data: options.html,
+                  Charset: 'UTF-8'
+                } : undefined
+              }
             }
-          }
-        };
-        
-        const command = new SendEmailCommand(params);
-        return sesClient.send(command);
+          };
+          
+          console.log('SES送信パラメータ:', JSON.stringify({
+            Source: params.Source,
+            Destination: params.Destination,
+            Subject: params.Message.Subject.Data
+          }, null, 2));
+          
+          const command = new SendEmailCommand(params);
+          return await sesClient.send(command);
+        } catch (error) {
+          console.error('SES送信エラー詳細:', error);
+          throw error;
+        }
       }
     };
   },
@@ -189,6 +214,10 @@ export const emailService = {
         html: options.html
       };
       
+      console.log(`メール送信準備 (環境: ${process.env.NODE_ENV || 'undefined'}):`);
+      console.log(`- 宛先: ${options.to}`);
+      console.log(`- 件名: ${options.subject}`);
+      
       // Send email based on environment
       if (process.env.NODE_ENV === 'development') {
         // Development: Use Ethereal Email or console
@@ -217,8 +246,16 @@ export const emailService = {
         }
       } else {
         // Production: Use Amazon SES
+        console.log('本番環境: Amazon SESを使用してメール送信を試みます');
         const transporter = emailService.createProdTransport();
-        return await transporter.sendMail(mailOptions);
+        try {
+          const result = await transporter.sendMail(mailOptions);
+          console.log('SES送信成功:', result);
+          return result;
+        } catch (error) {
+          console.error('SES送信失敗:', error);
+          throw error;
+        }
       }
     } catch (error) {
       console.error('Email sending error:', error);
@@ -226,14 +263,16 @@ export const emailService = {
     }
   },
   
-  // Send verification email
-  sendVerificationEmail: async (
-    to: string,
-    userName: string,
-    verificationToken: string,
-    userId: string
-  ): Promise<any> => {
+  // Send verification email - 新しいインターフェースに対応
+  sendVerificationEmail: async ({
+    to,
+    userName,
+    verificationToken,
+    userId
+  }: VerificationEmailParams): Promise<any> => {
     try {
+      console.log(`認証メール送信開始 - 宛先: ${to}, ユーザーID: ${userId}`);
+      
       // Generate verification link
       const baseUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
       const verificationLink = `${baseUrl}/verify-email?token=${verificationToken}&userId=${userId}`;

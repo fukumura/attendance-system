@@ -177,12 +177,12 @@ export const authController = {
       });
       
       // 認証メールを送信
-      await emailService.sendVerificationEmail(
-        user.email,
-        user.name,
+      await emailService.sendVerificationEmail({
+        to: user.email,
+        userName: user.name,
         verificationToken,
-        user.id
-      );
+        userId: user.id
+      });
       
       return res.status(200).json({
         status: 'success',
@@ -451,12 +451,19 @@ export const authController = {
       });
       
       // 認証メールを送信
-      await emailService.sendVerificationEmail(
-        newUser.email,
-        newUser.name,
-        verificationToken,
-        newUser.id
-      );
+      try {
+        console.log(`ユーザー登録: 認証メール送信を開始します - ${newUser.email}`);
+        await emailService.sendVerificationEmail({
+          to: newUser.email,
+          userName: newUser.name,
+          verificationToken,
+          userId: newUser.id
+        });
+        console.log(`ユーザー登録: 認証メール送信が完了しました - ${newUser.email}`);
+      } catch (emailError) {
+        console.error(`ユーザー登録: 認証メール送信に失敗しました - ${newUser.email}`, emailError);
+        // エラーが発生してもユーザー作成自体は継続する
+      }
       
       // パスワードを除外したユーザー情報を返却
       const { password, ...userWithoutPassword } = newUser;

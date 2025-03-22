@@ -1,6 +1,7 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import { authController } from '../controllers/authController';
 import { authenticate, requireAdmin } from '../middlewares/authMiddleware';
+import { emailService } from '../services/emailService';
 
 const router = express.Router();
 
@@ -27,5 +28,32 @@ router.put('/profile', authenticate, authController.updateProfile);
 
 // パスワード変更
 router.put('/password', authenticate, authController.changePassword);
+
+// テスト用メール送信エンドポイント
+router.post('/test-email', async (req: Request, res: Response) => {
+  try {
+    console.log('テストメール送信リクエスト受信:', req.body);
+    
+    const result = await emailService.sendEmail({
+      to: req.body.email || 'test@example.com',
+      subject: 'ポケット勤怠 - テストメール',
+      text: 'これはAmazon SESのテストメールです。メール送信システムが正常に機能していることを確認するためのテストです。'
+    });
+    
+    return res.status(200).json({
+      status: 'success',
+      message: 'テストメールが送信されました',
+      result
+    });
+  } catch (error: any) {
+    console.error('テストメール送信エラー:', error);
+    return res.status(500).json({
+      status: 'error',
+      message: 'テストメール送信中にエラーが発生しました',
+      error: String(error),
+      stack: error.stack
+    });
+  }
+});
 
 export default router;
