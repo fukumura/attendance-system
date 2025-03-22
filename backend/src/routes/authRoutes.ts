@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import { authController } from '../controllers/authController';
 import { authenticate, requireAdmin } from '../middlewares/authMiddleware';
 import { emailService } from '../services/emailService';
@@ -30,7 +30,7 @@ router.put('/profile', authenticate, authController.updateProfile);
 router.put('/password', authenticate, authController.changePassword);
 
 // テスト用メール送信エンドポイント
-router.post('/test-email', async (req, res) => {
+router.post('/test-email', async (req: Request, res: Response) => {
   try {
     console.log('テストメール送信リクエスト受信:', req.body);
     
@@ -45,7 +45,7 @@ router.post('/test-email', async (req, res) => {
       message: 'テストメールが送信されました',
       result
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('テストメール送信エラー:', error);
     return res.status(500).json({
       status: 'error',
@@ -55,3 +55,5 @@ router.post('/test-email', async (req, res) => {
     });
   }
 });
+
+export default router;

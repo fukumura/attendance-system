@@ -15,12 +15,12 @@ async function testVerificationEmail() {
     const userId = uuidv4();
     
     // Send a test verification email
-    const result = await emailService.sendVerificationEmail(
-      'test@example.com', // Replace with your test email
-      'テストユーザー',
+    const result = await emailService.sendVerificationEmail({
+      to: 'test@example.com', // Replace with your test email
+      userName: 'テストユーザー',
       verificationToken,
       userId
-    );
+    });
     
     console.log('Email sent successfully!');
     console.log('Result:', result);
